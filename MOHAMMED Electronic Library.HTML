@@ -8,26 +8,26 @@
 
     <style>
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
         }
 
         body {
-            font-family: "Tahoma", Arial, sans-serif;
+            font-family: Arial, Tahoma, sans-serif;
             background: #0a0f1a;
-            color: #ffffff;
+            color: #fff;
             min-height: 100vh;
         }
 
         /* الهيدر */
         header {
-            padding: 25px 8%;
+            padding: 22px 7%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid rgba(0, 174, 255, 0.2);
-            background: rgba(10, 15, 26, 0.95);
+            background: #0a0f1a;
+            border-bottom: 1px solid #17243a;
         }
 
         .logo {
@@ -40,15 +40,7 @@
             color: #9b5cff;
         }
 
-        .language {
-            padding: 8px 15px;
-            border: 1px solid #00b7ff;
-            border-radius: 8px;
-            color: #00b7ff;
-            font-size: 14px;
-        }
-
-        /* القسم الرئيسي */
+        /* المقدمة */
         .hero {
             text-align: center;
             padding: 70px 20px 50px;
@@ -63,14 +55,14 @@
         }
 
         .hero p {
+            color: #9aa8ba;
+            font-size: 17px;
+            line-height: 1.9;
             max-width: 700px;
             margin: auto;
-            color: #aeb9c8;
-            line-height: 1.9;
-            font-size: 17px;
         }
 
-        /* الكتب */
+        /* قسم الكتب */
         .books-section {
             width: 90%;
             max-width: 1200px;
@@ -78,18 +70,18 @@
             padding-bottom: 80px;
         }
 
-        .section-title {
+        .title {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 35px;
         }
 
-        .section-title h2 {
+        .title h2 {
             font-size: 30px;
             margin-bottom: 10px;
         }
 
-        .section-title p {
-            color: #8895a7;
+        .title p {
+            color: #77869a;
         }
 
         .books {
@@ -98,78 +90,74 @@
             gap: 30px;
         }
 
+        /* بطاقة الكتاب */
         .book {
             background: #111827;
-            border: 1px solid rgba(0, 183, 255, 0.18);
+            border: 1px solid #1e314b;
             border-radius: 18px;
             overflow: hidden;
-            transition: 0.3s ease;
-            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.25);
+            transition: 0.3s;
         }
 
         .book:hover {
             transform: translateY(-8px);
             border-color: #00b7ff;
-            box-shadow: 0 15px 45px rgba(0, 183, 255, 0.15);
+            box-shadow: 0 15px 40px rgba(0, 183, 255, 0.15);
         }
 
         /* صورة الكتاب */
-        .book a {
+        .book-image {
             display: block;
+            width: 100%;
             cursor: pointer;
         }
 
-        .book img {
+        .book-image img {
             width: 100%;
-            height: 420px;
+            height: 430px;
             object-fit: cover;
             display: block;
-            transition: 0.4s ease;
+            transition: 0.4s;
         }
 
-        .book:hover img {
+        .book:hover .book-image img {
             transform: scale(1.03);
         }
 
-        .book-content {
+        /* معلومات الكتاب */
+        .book-info {
             padding: 22px;
         }
 
-        .book-content h3 {
+        .book-info h3 {
             font-size: 20px;
             margin-bottom: 10px;
         }
 
-        .book-content p {
-            color: #9da9b8;
-            font-size: 14px;
+        .book-info p {
+            color: #9aa8ba;
             line-height: 1.8;
+            font-size: 14px;
             margin-bottom: 18px;
         }
 
-        .read-button {
+        .read {
             display: block;
             text-align: center;
+            text-decoration: none;
+            color: white;
+            background: linear-gradient(90deg, #0077ff, #7b3ff2);
             padding: 12px;
             border-radius: 10px;
-            background: linear-gradient(90deg, #0077ff, #7b3ff2);
-            color: white;
-            text-decoration: none;
             font-weight: bold;
-            transition: 0.3s;
-        }
-
-        .read-button:hover {
-            opacity: 0.85;
         }
 
         /* الفوتر */
         footer {
-            border-top: 1px solid rgba(0, 174, 255, 0.15);
             text-align: center;
-            padding: 30px 20px;
-            color: #718096;
-            font-size: 14px;
+            padding: 30px;
+            border-top: 1px solid #17243a;
+            color: #68768a;
         }
 
         /* الموبايل */
@@ -184,24 +172,16 @@
         }
 
         @media (max-width: 600px) {
-            header {
-                padding: 20px;
-            }
-
             .books {
                 grid-template-columns: 1fr;
             }
 
-            .book img {
-                height: 450px;
-            }
-
-            .hero {
-                padding-top: 50px;
-            }
-
             .hero h1 {
                 font-size: 29px;
+            }
+
+            .book-image img {
+                height: 450px;
             }
         }
     </style>
@@ -209,69 +189,79 @@
 
 <body>
 
-    <!-- Header -->
+    <!-- الهيدر -->
     <header>
         <div class="logo">
             محمد <span>للإلكترونيات</span>
         </div>
-
-        <div class="language">
-            العربية
-        </div>
     </header>
 
 
-    <!-- Hero -->
+    <!-- المقدمة -->
     <section class="hero">
 
         <h1>مكتبة محمد للإلكترونيات</h1>
 
         <p>
             مكتبة متخصصة في علوم الإلكترونيات والصيانة والدوائر
-            والمتحكمات والأنظمة الحديثة، تجمع مجموعة من المراجع
-            التعليمية لمساعدة الطلاب والمهندسين والمهتمين بمجال الإلكترونيات.
+            والمتحكمات والأنظمة الإلكترونية.
         </p>
 
     </section>
 
 
-    <!-- Books -->
+    <!-- الكتب -->
     <section class="books-section">
 
-        <div class="section-title">
+        <div class="title">
             <h2>📚 الكتب المتاحة</h2>
-            <p>اضغط على صورة الكتاب للانتقال إلى الكتاب على Google Drive</p>
+
+            <p>
+                اضغط على صورة الكتاب للانتقال إلى مكتبة الكتب
+            </p>
         </div>
 
 
         <div class="books">
 
-            <!-- الكتاب الأول -->
+
+            <!-- ==================== الكتاب الأول ==================== -->
+
             <div class="book">
 
-                <a href="ضع_رابط_Google_Drive_هنا"
-                   target="_blank"
-                   rel="noopener noreferrer">
+                <a
+                    class="book-image"
+                    href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
 
-                    <img src="ضع_رابط_صورة_الكتاب_الأول_هنا"
-                         alt="الكتاب الأول">
+                    <!-- ضع صورة الكتاب الأول هنا -->
+                    <img
+                        src="book1.jpg"
+                        alt="دليل العناصر الإلكترونية"
+                    >
 
                 </a>
 
-                <div class="book-content">
+                <div class="book-info">
 
-                    <h3>دليل العناصر الإلكترونية</h3>
+                    <h3>
+                        دليل العناصر الإلكترونية
+                    </h3>
 
                     <p>
-                        مرجع تعليمي للتعرف على المكونات الإلكترونية
-                        وفهم وظائفها واستخداماتها داخل الدوائر الإلكترونية.
+                        مرجع شامل للتعرف على المكونات الإلكترونية
+                        وفهم وظائفها واستخداماتها.
                     </p>
 
-                    <a class="read-button"
-                       href="ضع_رابط_Google_Drive_هنا"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        📖 قراءة الكتاب
+                    <a
+                        class="read"
+                        href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        📖 دخول إلى الكتاب
                     </a>
 
                 </div>
@@ -279,32 +269,43 @@
             </div>
 
 
-            <!-- الكتاب الثاني -->
+            <!-- ==================== الكتاب الثاني ==================== -->
+
             <div class="book">
 
-                <a href="ضع_رابط_Google_Drive_هنا"
-                   target="_blank"
-                   rel="noopener noreferrer">
+                <a
+                    class="book-image"
+                    href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
 
-                    <img src="ضع_رابط_صورة_الكتاب_الثاني_هنا"
-                         alt="الكتاب الثاني">
+                    <!-- ضع صورة الكتاب الثاني هنا -->
+                    <img
+                        src="book2.jpg"
+                        alt="أساسيات صيانة الكروت الإلكترونية"
+                    >
 
                 </a>
 
-                <div class="book-content">
+                <div class="book-info">
 
-                    <h3>أساسيات صيانة الكروت الإلكترونية</h3>
+                    <h3>
+                        أساسيات صيانة الكروت الإلكترونية
+                    </h3>
 
                     <p>
-                        دليل عملي لفهم أعطال اللوحات الإلكترونية
-                        وأساليب الفحص والتشخيص وتتبع الأعطال.
+                        دليل عملي لفحص وتشخيص وتتبع أعطال
+                        اللوحات والكروت الإلكترونية.
                     </p>
 
-                    <a class="read-button"
-                       href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        📖 قراءة الكتاب
+                    <a
+                        class="read"
+                        href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        📖 دخول إلى الكتاب
                     </a>
 
                 </div>
@@ -312,46 +313,62 @@
             </div>
 
 
-            <!-- الكتاب الثالث -->
+            <!-- ==================== الكتاب الثالث ==================== -->
+
             <div class="book">
 
-                <a href="ضع_رابط_Google_Drive_هنا"
-                   target="_blank"
-                   rel="noopener noreferrer">
+                <a
+                    class="book-image"
+                    href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
 
-                    <img src="ضع_رابط_صورة_الكتاب_الثالث_هنا"
-                         alt="الكتاب الثالث">
+                    <!-- ضع صورة الكتاب الثالث هنا -->
+                    <img
+                        src="book3.jpg"
+                        alt="أساسيات الإلكترونيات"
+                    >
 
                 </a>
 
-                <div class="book-content">
+                <div class="book-info">
 
-                    <h3>أساسيات الإلكترونيات</h3>
+                    <h3>
+                        أساسيات الإلكترونيات
+                    </h3>
 
                     <p>
-                        مدخل مبسط إلى الإلكترونيات والدوائر
-                        والمكونات الأساسية وطرق التعامل معها.
+                        بداية عملية لفهم الإلكترونيات والمكونات
+                        والدوائر الإلكترونية الأساسية.
                     </p>
 
-                    <a class="read-button"
-                       href="ضع_رابط_Google_Drive_هنا"
-                       target="_blank"
-                       rel="noopener noreferrer">
-                        📖 قراءة الكتاب
+                    <a
+                        class="read"
+                        href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        📖 دخول إلى الكتاب
                     </a>
 
                 </div>
 
             </div>
+
 
         </div>
 
     </section>
 
 
-    <!-- Footer -->
+    <!-- الفوتر -->
     <footer>
-        © 2026 مكتبة محمد للإلكترونيات — جميع الحقوق محفوظة
+
+        © 2026 مكتبة محمد للإلكترونيات
+        <br>
+        جميع الحقوق محفوظة
+
     </footer>
 
 </body>
