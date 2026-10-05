@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة محمد الإلكترونية</title>
-    <!-- مكتبة الأيقونات Font Awesome -->
+    <title>مكتبة محمد الإلكترونية - بوابة الأعضاء</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -39,7 +38,7 @@
             padding: 0 20px;
         }
 
-        /* ==================== الهيدر / الشريط العلوي ==================== */
+        /* الهيدر */
         header {
             background-color: rgba(14, 21, 38, 0.8);
             backdrop-filter: blur(10px);
@@ -95,7 +94,6 @@
             flex-wrap: wrap;
         }
 
-        /* الأزرار العامة */
         .btn {
             padding: 8px 16px;
             border-radius: 10px;
@@ -121,16 +119,6 @@
             background: #18233c;
         }
 
-        .btn-purple {
-            background: linear-gradient(135deg, #6d28d9, #4f46e5);
-            color: #fff;
-        }
-
-        .btn-purple:hover {
-            opacity: 0.9;
-            box-shadow: 0 0 15px rgba(109, 40, 217, 0.4);
-        }
-
         .btn-primary {
             background: var(--primary-blue);
             color: #fff;
@@ -141,312 +129,117 @@
             box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
         }
 
-        /* ==================== كارت المقدمة (Hero Card) ==================== */
-        .hero-section {
-            padding: 25px 0;
-        }
-
-        .hero-card {
-            background: linear-gradient(180deg, #0f192e 0%, #0b1120 100%);
-            border: 1px solid var(--card-border);
-            border-radius: 20px;
-            padding: 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-content {
-            max-width: 650px;
-            z-index: 2;
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            border: 1px solid rgba(37, 99, 235, 0.3);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 12px;
-            margin-bottom: 15px;
-        }
-
-        .hero-content h1 {
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 12px;
-            color: #fff;
-        }
-
-        .hero-content p {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 25px;
-        }
-
-        .btn-hero {
-            background: linear-gradient(90deg, #2563eb, #6d28d9);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
-        }
-
-        .hero-avatar-card {
-            background: #090e1a;
-            border: 1px solid var(--card-border);
-            padding: 25px 35px;
-            border-radius: 16px;
-            text-align: center;
-            z-index: 2;
-        }
-
-        .avatar-circle {
-            width: 90px;
-            height: 90px;
-            background: linear-gradient(135deg, #1d4ed8, #00b7ff);
-            border-radius: 50%;
-            margin: 0 auto 12px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* نافذة تسجيل الدخول (Modal) */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            display: none;
             justify-content: center;
-            box-shadow: 0 0 25px rgba(0, 183, 255, 0.3);
+            align-items: center;
+            z-index: 1000;
         }
 
-        .avatar-circle span {
-            font-size: 24px;
-            font-weight: 900;
-            line-height: 1;
-        }
-
-        .avatar-circle strong {
-            font-size: 9px;
-            letter-spacing: 1px;
-            margin-top: 3px;
-        }
-
-        .avatar-title {
-            font-size: 12px;
-            color: var(--text-muted);
-            font-weight: 600;
-        }
-
-        /* ==================== شريط البحث والتصنيفات ==================== */
-        .filter-section {
-            margin-bottom: 30px;
-        }
-
-        .search-bar-card {
+        .modal-card {
             background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 14px;
-            padding: 12px 18px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            margin-bottom: 15px;
-            flex-wrap: wrap;
+            border-radius: 18px;
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            position: relative;
         }
 
-        .search-input-wrapper {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            background: #080d1a;
-            border: 1px solid var(--card-border);
-            border-radius: 10px;
-            padding: 8px 14px;
-            gap: 10px;
-            min-width: 280px;
-        }
-
-        .search-input-wrapper input {
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
             background: transparent;
             border: none;
-            outline: none;
-            color: #fff;
-            width: 100%;
-            font-size: 13px;
-        }
-
-        .search-icon {
             color: var(--text-muted);
-        }
-
-        .search-kbd {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-size: 11px;
-        }
-
-        .search-info-badge {
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(37, 99, 235, 0.2);
-            color: #60a5fa;
-            font-size: 12px;
-            padding: 8px 14px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        /* شريط التابز والتصنيفات */
-        .categories-scroll {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            padding-bottom: 5px;
-            scrollbar-width: thin;
-        }
-
-        .cat-chip {
-            background: var(--chip-bg);
-            border: 1px solid var(--card-border);
-            color: var(--text-muted);
-            padding: 8px 16px;
-            border-radius: 10px;
-            font-size: 13px;
-            white-space: nowrap;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .cat-chip:hover {
-            border-color: var(--primary-blue);
-            color: #fff;
-        }
-
-        .cat-chip.active {
-            background: var(--primary-blue);
-            color: #fff;
-            border-color: var(--primary-blue);
-        }
-
-        .cat-chip .badge {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 2px 7px;
-            border-radius: 12px;
-            font-size: 11px;
-        }
-
-        /* ==================== شبكة عرض الكتب ==================== */
-        .books-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 25px;
-            margin-bottom: 60px;
-        }
-
-        .book-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .book-card:hover {
-            transform: translateY(-5px);
-            border-color: var(--primary-blue);
-            box-shadow: 0 10px 30px rgba(37, 99, 235, 0.15);
-        }
-
-        .book-cover {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-            display: block;
-        }
-
-        .book-details {
-            padding: 20px;
-        }
-
-        .book-details h3 {
             font-size: 18px;
-            margin-bottom: 8px;
-            color: #fff;
+            cursor: pointer;
         }
 
-        .book-details p {
-            color: var(--text-muted);
-            font-size: 13px;
-            line-height: 1.6;
+        .modal-title {
+            font-size: 20px;
             margin-bottom: 20px;
-            height: 40px;
-            overflow: hidden;
-        }
-
-        .book-action-btn {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            width: 100%;
-            padding: 10px;
-            background: linear-gradient(90deg, #1d4ed8, #4f46e5);
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 14px;
-            transition: opacity 0.3s ease;
-        }
-
-        .book-action-btn:hover {
-            opacity: 0.9;
-        }
-
-        /* الفوتر */
-        footer {
             text-align: center;
-            padding: 25px;
-            border-top: 1px solid var(--card-border);
-            color: var(--text-muted);
-            font-size: 13px;
         }
 
-        /* التجاوب مع الموبايل */
-        @media (max-width: 850px) {
-            .hero-card {
-                flex-direction: column-reverse;
-                text-align: center;
-                gap: 25px;
-            }
-            
-            .hero-content {
-                max-width: 100%;
-            }
+        .form-group {
+            margin-bottom: 15px;
+        }
 
-            .nav-container {
-                justify-content: center;
-            }
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: #080d1a;
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            color: #fff;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .form-input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary-blue);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* بوابة الأعضاء (User Profile Widget) */
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: var(--chip-bg);
+            padding: 6px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--primary-purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: bold;
         }
     </style>
 </head>
 
 <body>
 
-    <!-- الهيدر العلوي -->
+    <!-- الهيدر -->
     <header>
         <div class="container nav-container">
-            <!-- الشعار -->
             <div class="logo-group">
                 <div class="logo-avatar">ME</div>
                 <div class="logo-text">
@@ -455,128 +248,129 @@
                 </div>
             </div>
 
-            <!-- أزرار الإجراءات -->
             <div class="nav-actions">
-                <button class="btn btn-outline"><i class="fa-solid fa-globe"></i> English</button>
-                <button class="btn btn-outline"><i class="fa-regular fa-bell"></i> اشتراك في التصنيف</button>
-                <button class="btn btn-purple"><i class="fa-solid fa-upload"></i> رفع كتاب</button>
-                <button class="btn btn-outline"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
-                <button class="btn btn-primary"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</button>
+                <!-- أزرار الزائر -->
+                <div id="guest-actions" style="display: flex; gap: 8px;">
+                    <button class="btn btn-outline" onclick="openModal('login')"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
+                    <button class="btn btn-primary" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</button>
+                </div>
+
+                <!-- بوابة العضو (تظهر بعد الدخول) -->
+                <div id="user-actions" class="user-profile">
+                    <div class="user-avatar" id="user-initials">U</div>
+                    <span id="user-name" style="font-size: 13px; font-weight: 600;">المستخدم</span>
+                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> خروج</button>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- الهيرو / بنر المكتبة الرئيسي -->
-    <section class="hero-section">
-        <div class="container">
-            <div class="hero-card">
-                <div class="hero-content">
-                    <div class="hero-badge">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> مكتبة محمد الإلكترونية
-                    </div>
-                    <h1>مكتبة محمد الإلكترونية</h1>
-                    <p>المنصة الرقمية الرائدة لقراءة وتحميل أحدث الكتب والأبحاث المعرفية في مجالات الإلكترونيات والصيانة والدوائر البرمجية.</p>
-                    <a href="#" class="btn btn-hero">
-                        <i class="fa-solid fa-arrow-up-from-bracket"></i> رفع كتاب جديد إلى المكتبة
-                    </a>
+    <!-- نافذة تسجيل الدخول / التسجيل -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h3 class="modal-title" id="modalTitle">تسجيل الدخول</h3>
+
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="form-group" id="nameGroup" style="display: none;">
+                    <label>الاسم الكامل</label>
+                    <input type="text" id="fullName" class="form-input" placeholder="محمد أحمد">
                 </div>
 
-                <div class="hero-avatar-card">
-                    <div class="avatar-circle">
-                        <span>ME</span>
-                        <strong>MOHAMMED</strong>
-                    </div>
-                    <div class="avatar-title">MOHAMMED Electronic</div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="email" class="form-input" required placeholder="user@domain.com">
                 </div>
-            </div>
+
+                <div class="form-group">
+                    <label>كلمة السر</label>
+                    <input type="password" id="password" class="form-input" required placeholder="••••••••">
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">دخول</button>
+            </form>
         </div>
-    </section>
+    </div>
 
-    <!-- شريط البحث والتصنيفات -->
-    <section class="filter-section">
-        <div class="container">
-            <!-- شريط البحث -->
-            <div class="search-bar-card">
-                <div class="search-input-wrapper">
-                    <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                    <input type="text" placeholder="ابحث عن كتاب، كاتب، أو كلمة مفتاحية...">
-                    <span class="search-kbd">/</span>
-                </div>
+    <script>
+        let currentMode = 'login';
 
-                <div class="search-info-badge">
-                    <i class="fa-regular fa-bookmark"></i> منصة مخصصة للمطالعة والقراءة المباشرة فقط
-                </div>
+        function openModal(mode) {
+            currentMode = mode;
+            const modal = document.getElementById('authModal');
+            const title = document.getElementById('modalTitle');
+            const nameGroup = document.getElementById('nameGroup');
+            const submitBtn = document.getElementById('submitBtn');
 
-                <button class="btn btn-outline">
-                    <i class="fa-solid fa-arrow-down-short-wide"></i> الأحدث إضافة <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
-                </button>
-            </div>
+            if (mode === 'register') {
+                title.innerText = 'إنشاء حساب جديد';
+                nameGroup.style.display = 'block';
+                submitBtn.innerText = 'إنشاء الحساب';
+            } else {
+                title.innerText = 'تسجيل الدخول';
+                nameGroup.style.display = 'none';
+                submitBtn.innerText = 'دخول';
+            }
+            modal.style.display = 'flex';
+        }
 
-            <!-- قائمة التابز / التصنيفات -->
-            <div class="categories-scroll">
-                <button class="cat-chip active"> جميع التصنيفات <span class="badge">23</span></button>
-                <button class="cat-chip"> أساسيات الإلكترونيات والورش العملية <span class="badge">5</span></button>
-                <button class="cat-chip"> الصيانة وتتبع الأعطال <span class="badge">3</span></button>
-                <button class="cat-chip"> الإلكترونيات التناظرية وتصميم الدوائر <span class="badge">5</span></button>
-                <button class="cat-chip"> الإلكترونيات الرقمية والأنظمة المدمجة <span class="badge">5</span></button>
-                <button class="cat-chip"> القوى والتحكم والذائذ </button>
-            </div>
-        </div>
-    </section>
+        function closeModal() {
+            document.getElementById('authModal').style.display = 'none';
+        }
 
-    <!-- قسم شبكة الكتب -->
-    <main class="container">
-        <div class="books-grid">
+        async function handleAuth(event) {
+            event.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const fullName = document.getElementById('fullName').value;
 
-            <!-- الكتاب الأول -->
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book1.jpg" alt="دليل العناصر الإلكترونية" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>دليل العناصر الإلكترونية</h3>
-                    <p>مرجع شامل للتعرف على المكونات الإلكترونية وفهم وظائفها واستخداماتها.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
+            const endpoint = currentMode === 'register' ? '/api/register' : '/api/login';
+            const payload = currentMode === 'register' ? { fullName, email, password } : { email, password };
 
-            <!-- الكتاب الثاني -->
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book2.jpg" alt="أساسيات صيانة الكروت الإلكترونية" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>أساسيات صيانة الكروت الإلكترونية</h3>
-                    <p>دليل عملي لفحص وتشخيص وتتبع أعطال اللوحات والكروت الإلكترونية.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
+            try {
+                const response = await fetch(`http://localhost:3000${endpoint}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
 
-            <!-- الكتاب الثالث -->
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book3.jpg" alt="أساسيات الإلكترونيات" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>أساسيات الإلكترونيات</h3>
-                    <p>بداية عملية لفهم الإلكترونيات والمكونات والدوائر الإلكترونية الأساسية.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
+                const data = await response.json();
 
-        </div>
-    </main>
+                if (response.ok) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+                    checkAuthStatus();
+                    closeModal();
+                    alert(data.message);
+                } else {
+                    alert(data.error || 'حدث خطأ أثناء العملية');
+                }
+            } catch (err) {
+                alert('عذراً، تعذر الاتصال بالخادم.');
+            }
+        }
 
-    <!-- الفوتر -->
-    <footer>
-        © 2026 مكتبة محمد للإلكترونيات - جميع الحقوق محفوظة
-    </footer>
+        function checkAuthStatus() {
+            const user = JSON.parse(localStorage.getItem('user'));
+            if (user) {
+                document.getElementById('guest-actions').style.display = 'none';
+                document.getElementById('user-actions').style.display = 'flex';
+                document.getElementById('user-name').innerText = user.fullName;
+                document.getElementById('user-initials').innerText = user.fullName.charAt(0).toUpperCase();
+            } else {
+                document.getElementById('guest-actions').style.display = 'flex';
+                document.getElementById('user-actions').style.display = 'none';
+            }
+        }
 
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            checkAuthStatus();
+        }
+
+        // التحقق عند تحميل الصفحة
+        window.onload = checkAuthStatus;
+    </script>
 </body>
 </html>
