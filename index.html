@@ -3,9 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة محمد الإلكترونية - بوابة الأعضاء</title>
+    <title>مكتبة محمد الإلكترونية - Firebase</title>
+    <!-- مكتبة الأيقونات Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- مكتبات Firebase (SDK v10 Compat) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --bg-color: #070a12;
@@ -210,7 +216,7 @@
             margin-top: 10px;
         }
 
-        /* بوابة الأعضاء (User Profile Widget) */
+        /* بوابة الأعضاء (User Profile) */
         .user-profile {
             display: none;
             align-items: center;
@@ -231,6 +237,68 @@
             justify-content: center;
             font-size: 14px;
             font-weight: bold;
+        }
+
+        /* شبكة الكتب */
+        .books-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            margin: 40px 0;
+        }
+
+        .book-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .book-cover {
+            width: 100%;
+            height: 380px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .book-details {
+            padding: 20px;
+        }
+
+        .book-details h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+        }
+
+        .book-details p {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .book-action-btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(90deg, #1d4ed8, #4f46e5);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            border-top: 1px solid var(--card-border);
+            color: var(--text-muted);
+            font-size: 13px;
         }
     </style>
 </head>
@@ -255,7 +323,7 @@
                     <button class="btn btn-primary" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</button>
                 </div>
 
-                <!-- بوابة العضو (تظهر بعد الدخول) -->
+                <!-- بوابة العضو (تظهر تلقائياً بعد الدخول) -->
                 <div id="user-actions" class="user-profile">
                     <div class="user-avatar" id="user-initials">U</div>
                     <span id="user-name" style="font-size: 13px; font-weight: 600;">المستخدم</span>
@@ -265,7 +333,53 @@
         </div>
     </header>
 
-    <!-- نافذة تسجيل الدخول / التسجيل -->
+    <!-- الكتب المتاحة -->
+    <main class="container">
+        <div class="books-grid">
+
+            <div class="book-card">
+                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                    <img src="book1.jpg" alt="دليل العناصر الإلكترونية" class="book-cover">
+                </a>
+                <div class="book-details">
+                    <h3>دليل العناصر الإلكترونية</h3>
+                    <p>مرجع شامل للتعرف على المكونات الإلكترونية وفهم وظائفها واستخداماتها.</p>
+                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
+                    </a>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                    <img src="book2.jpg" alt="أساسيات صيانة الكروت الإلكترونية" class="book-cover">
+                </a>
+                <div class="book-details">
+                    <h3>أساسيات صيانة الكروت الإلكترونية</h3>
+                    <p>دليل عملي لفحص وتشخيص وتتبع أعطال اللوحات والكروت الإلكترونية.</p>
+                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
+                    </a>
+                </div>
+            </div>
+
+            <div class="book-card">
+                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                    <img src="book3.jpg" alt="أساسيات الإلكترونيات" class="book-cover">
+                </a>
+                <div class="book-details">
+                    <h3>أساسيات الإلكترونيات</h3>
+                    <p>بداية عملية لفهم الإلكترونيات والمكونات والدوائر الإلكترونية الأساسية.</p>
+                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
+                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -292,7 +406,27 @@
         </div>
     </div>
 
+    <footer>
+        © 2026 مكتبة محمد للإلكترونيات - جميع الحقوق محفوظة
+    </footer>
+
+    <!-- سكربت الربط مع Firebase -->
     <script>
+        // 1. استبدل القيم التالية ببيانات مشروعك من Firebase Console
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // تهيئة خدمات Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
         let currentMode = 'login';
 
         function openModal(mode) {
@@ -318,59 +452,67 @@
             document.getElementById('authModal').style.display = 'none';
         }
 
+        // معالجة تسجيل الدخول / الإنشاء مع Firebase
         async function handleAuth(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const fullName = document.getElementById('fullName').value;
 
-            const endpoint = currentMode === 'register' ? '/api/register' : '/api/login';
-            const payload = currentMode === 'register' ? { fullName, email, password } : { email, password };
-
             try {
-                const response = await fetch(`http://localhost:3000${endpoint}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
+                if (currentMode === 'register') {
+                    // 1. إنشاء حساب جديد في Firebase Auth
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
 
-                const data = await response.json();
+                    // 2. حفظ بيانات العضو في قاعدة بيانات Firestore
+                    await db.collection('users').doc(user.uid).set({
+                        fullName: fullName,
+                        email: email,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
 
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    localStorage.setItem('user', JSON.stringify(data.user));
-                    checkAuthStatus();
-                    closeModal();
-                    alert(data.message);
+                    alert('تم إنشاء الحساب بنجاح!');
                 } else {
-                    alert(data.error || 'حدث خطأ أثناء العملية');
+                    // تسجيل الدخول
+                    await auth.signInWithEmailAndPassword(email, password);
+                    alert('تم تسجيل الدخول بنجاح!');
                 }
-            } catch (err) {
-                alert('عذراً، تعذر الاتصال بالخادم.');
+                closeModal();
+            } catch (error) {
+                alert('خطأ: ' + error.message);
             }
         }
 
-        function checkAuthStatus() {
-            const user = JSON.parse(localStorage.getItem('user'));
+        // متابعة حالة تسجيل الدخول تلقائياً
+        auth.onAuthStateChanged(async (user) => {
+            const guestActions = document.getElementById('guest-actions');
+            const userActions = document.getElementById('user-actions');
+
             if (user) {
-                document.getElementById('guest-actions').style.display = 'none';
-                document.getElementById('user-actions').style.display = 'flex';
-                document.getElementById('user-name').innerText = user.fullName;
-                document.getElementById('user-initials').innerText = user.fullName.charAt(0).toUpperCase();
+                // جلب بيانات العضو من Firestore
+                const userDoc = await db.collection('users').doc(user.uid).get();
+                let name = 'عضو المكتبة';
+
+                if (userDoc.exists && userDoc.data().fullName) {
+                    name = userDoc.data().fullName;
+                }
+
+                document.getElementById('user-name').innerText = name;
+                document.getElementById('user-initials').innerText = name.charAt(0).toUpperCase();
+
+                guestActions.style.display = 'none';
+                userActions.style.display = 'flex';
             } else {
-                document.getElementById('guest-actions').style.display = 'flex';
-                document.getElementById('user-actions').style.display = 'none';
+                guestActions.style.display = 'flex';
+                userActions.style.display = 'none';
             }
-        }
+        });
 
+        // تسجيل الخروج
         function logout() {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            checkAuthStatus();
+            auth.signOut();
         }
-
-        // التحقق عند تحميل الصفحة
-        window.onload = checkAuthStatus;
     </script>
 </body>
 </html>
