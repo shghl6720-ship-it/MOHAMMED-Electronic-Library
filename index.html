@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مكتبة محمد الإلكترونية - Firebase</title>
+    <title>مكتبة محمد الإلكترونية - Electrivo</title>
     <!-- مكتبة الأيقونات Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -22,6 +22,7 @@
             --text-main: #ffffff;
             --text-muted: #94a3b8;
             --chip-bg: #131c31;
+            --success-color: #10b981;
         }
 
         * {
@@ -46,7 +47,7 @@
 
         /* الهيدر */
         header {
-            background-color: rgba(14, 21, 38, 0.8);
+            background-color: rgba(14, 21, 38, 0.85);
             backdrop-filter: blur(10px);
             border-bottom: 1px solid var(--card-border);
             position: sticky;
@@ -149,15 +150,68 @@
             background: #f1f1f1;
         }
 
-        /* نافذة تسجيل الدخول */
+        /* شريط تنبيه الاستكمال */
+        .status-banner {
+            background: rgba(37, 99, 235, 0.1);
+            border: 1px solid var(--primary-blue);
+            border-radius: 12px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .status-banner p {
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        /* ملف المستخدم في الهيدر */
+        .user-profile {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            background: var(--chip-bg);
+            padding: 6px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+        }
+
+        .user-avatar-img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--primary-blue);
+        }
+
+        .user-info-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-info-text .name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .user-info-text .job {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        /* النوافذ المنبثقة (Modals) */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.75);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(6px);
             display: none;
             justify-content: center;
             align-items: center;
@@ -169,9 +223,9 @@
             border: 1px solid var(--card-border);
             border-radius: 18px;
             width: 100%;
-            max-width: 420px;
+            max-width: 450px;
             padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             position: relative;
         }
 
@@ -182,14 +236,21 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
         }
 
         .modal-title {
             font-size: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 8px;
             text-align: center;
+        }
+
+        .modal-sub {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .form-group {
@@ -228,6 +289,11 @@
             font-weight: bold;
             cursor: pointer;
             margin-top: 10px;
+            font-size: 14px;
+        }
+
+        .submit-btn:hover {
+            background: #1d4ed8;
         }
 
         .divider {
@@ -250,35 +316,12 @@
         .divider::before { right: 0; }
         .divider::after { left: 0; }
 
-        /* ملف المستخدم */
-        .user-profile {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            background: var(--chip-bg);
-            padding: 6px 14px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background: var(--primary-purple);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
         /* شبكة الكتب */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 25px;
-            margin: 40px 0;
+            margin: 30px 0 50px 0;
         }
 
         .book-card {
@@ -287,22 +330,35 @@
             border-radius: 16px;
             overflow: hidden;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .book-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-blue);
         }
 
         .book-cover {
             width: 100%;
-            height: 380px;
+            height: 360px;
             object-fit: cover;
             display: block;
         }
 
         .book-details {
             padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .book-details h3 {
             font-size: 18px;
             margin-bottom: 8px;
+            color: #fff;
         }
 
         .book-details p {
@@ -318,13 +374,29 @@
             align-items: center;
             gap: 8px;
             width: 100%;
-            padding: 10px;
-            background: linear-gradient(90deg, #1d4ed8, #4f46e5);
-            color: white;
-            text-decoration: none;
+            padding: 12px;
             border-radius: 10px;
             font-weight: bold;
             font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-locked {
+            background: #1e293b;
+            color: #94a3b8;
+            border: 1px dashed var(--card-border);
+        }
+
+        .btn-unlocked {
+            background: linear-gradient(90deg, #1d4ed8, #4f46e5);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-unlocked:hover {
+            background: linear-gradient(90deg, #2563eb, #6366f1);
         }
 
         footer {
@@ -345,7 +417,7 @@
                 <div class="logo-avatar">ME</div>
                 <div class="logo-text">
                     <h2>مكتبة محمد الإلكترونية</h2>
-                    <span>اقرأ، تعلم، وتوسع</span>
+                    <span>Electrivo - منصة الكتب الهندسية والتكنولوجية</span>
                 </div>
             </div>
 
@@ -356,78 +428,47 @@
                 </div>
 
                 <div id="user-actions" class="user-profile">
-                    <div class="user-avatar" id="user-initials">U</div>
-                    <span id="user-name" style="font-size: 13px; font-weight: 600;">المستخدم</span>
-                    <button class="btn btn-outline" style="padding: 4px 8px; font-size: 11px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> خروج</button>
+                    <img id="user-avatar" class="user-avatar-img" src="https://via.placeholder.com/150" alt="صورة المستخدم">
+                    <div class="user-info-text">
+                        <span id="user-name" class="name">المستخدم</span>
+                        <span id="user-job" class="job">المسمى الوظيفي</span>
+                    </div>
+                    <button class="btn btn-outline" style="padding: 6px 10px; font-size: 11px; margin-right: 8px;" onclick="openProfileModal()"><i class="fa-solid fa-user-pen"></i> تعديل</button>
+                    <button class="btn btn-outline" style="padding: 6px 10px; font-size: 11px;" onclick="logout()"><i class="fa-solid fa-power-off"></i> خروج</button>
                 </div>
             </div>
         </div>
     </header>
 
     <main class="container">
-        <div class="books-grid">
+        <!-- شريط حالة المستخدم والوصول -->
+        <div id="status-banner" class="status-banner">
+            <p id="status-message"><i class="fa-solid fa-lock" style="color: #f59e0b; margin-left: 8px;"></i> تنبيه: يجب عليك تسجيل الدخول وإكمال بيانات ملفك الشخصي لتتمكن من قراءة الكتب وتحميلها.</p>
+            <button id="status-btn" class="btn btn-primary" onclick="openModal('register')">تسجيل حساب جديد</button>
+        </div>
 
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book1.jpg" alt="دليل العناصر الإلكترونية" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>دليل العناصر الإلكترونية</h3>
-                    <p>مرجع شامل للتعرف على المكونات الإلكترونية وفهم وظائفها واستخداماتها.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book2.jpg" alt="أساسيات صيانة الكروت الإلكترونية" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>أساسيات صيانة الكروت الإلكترونية</h3>
-                    <p>دليل عملي لفحص وتشخيص وتتبع أعطال اللوحات والكروت الإلكترونية.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
-
-            <div class="book-card">
-                <a href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                    <img src="book3.jpg" alt="أساسيات الإلكترونيات" class="book-cover">
-                </a>
-                <div class="book-details">
-                    <h3>أساسيات الإلكترونيات</h3>
-                    <p>بداية عملية لفهم الإلكترونيات والمكونات والدوائر الإلكترونية الأساسية.</p>
-                    <a class="book-action-btn" href="https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing" target="_blank">
-                        <i class="fa-solid fa-book-open"></i> دخول إلى الكتاب
-                    </a>
-                </div>
-            </div>
-
+        <!-- شبكة عرض الكتب -->
+        <div class="books-grid" id="books-container">
+            <!-- يتم إضافة الكتب ديناميكياً بواسطة JavaScript -->
         </div>
     </main>
 
+    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
-            <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+            <button class="close-modal" onclick="closeModal('authModal')"><i class="fa-solid fa-xmark"></i></button>
             <h3 class="modal-title" id="modalTitle">تسجيل الدخول</h3>
+            <p class="modal-sub">مرحباً بك في مكتبة محمد الإلكترونية</p>
 
             <form id="authForm" onsubmit="handleAuth(event)">
-                <div class="form-group" id="nameGroup" style="display: none;">
-                    <label>الاسم الكامل</label>
-                    <input type="text" id="fullName" class="form-input" placeholder="محمد أحمد">
-                </div>
-
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
                     <input type="email" id="email" class="form-input" required placeholder="user@domain.com">
                 </div>
 
                 <div class="form-group">
-                    <label>كلمة السر</label>
-                    <input type="password" id="password" class="form-input" required placeholder="••••••••">
+                    <label>كلمة السر (6 أحرف/أرقام على الأقل)</label>
+                    <input type="password" id="password" class="form-input" required minlength="6" placeholder="••••••••">
                 </div>
 
                 <button type="submit" class="submit-btn" id="submitBtn">دخول</button>
@@ -441,12 +482,69 @@
         </div>
     </div>
 
+    <!-- نافذة إكمال الملف الشخصي الإلزامية -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-card">
+            <h3 class="modal-title"><i class="fa-solid fa-id-card" style="color: var(--primary-blue);"></i> إكمال الملف الشخصي</h3>
+            <p class="modal-sub">يرجى إدخال بياناتك الشخصية لتتمكن من الوصول للكتب</p>
+
+            <form id="profileForm" onsubmit="saveProfile(event)">
+                <div class="form-group">
+                    <label>الاسم الكامل *</label>
+                    <input type="text" id="profileFullName" class="form-input" required placeholder="مثال: محمد حسين">
+                </div>
+
+                <div class="form-group">
+                    <label>الوظيفة / التخصص *</label>
+                    <input type="text" id="profileJob" class="form-input" required placeholder="مثال: مهندس إلكترونيات / طالب">
+                </div>
+
+                <div class="form-group">
+                    <label>رابط الصورة الشخصية (أو اتركها افتراضية) *</label>
+                    <input type="url" id="profilePhoto" class="form-input" placeholder="https://example.com/my-photo.jpg">
+                    <small style="color: var(--text-muted); font-size: 10px; display: block; margin-top: 4px;">يمكنك وضع رابط صورتك على الفيس بوك أو أي موقع صور.</small>
+                </div>
+
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-floppy-disk"></i> حفظ البيانات وفتح المكتبة</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
-        © 2026 مكتبة محمد للإلكترونيات - جميع الحقوق محفوظة
+        © 2026 مكتبة محمد الإلكترونية (Electrivo) - جميع الحقوق محفوظة
     </footer>
 
     <script>
-        // إعدادات Firebase الخاصة بالمشروع
+        // ----------------------------------------------------
+        // 1. قائمة الكتب المتاحة بالصفحة (يمكنك الإضافة والتعديل عليها)
+        // ----------------------------------------------------
+        const booksData = [
+            {
+                id: 1,
+                title: "دليل العناصر الإلكترونية",
+                description: "مرجع شامل للتعرف على المكونات الإلكترونية وفهم وظائفها وطرق اختبارها واستخداماتها العملية.",
+                cover: "book1.jpg",
+                driveUrl: "https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+            },
+            {
+                id: 2,
+                title: "أساسيات صيانة الكروت الإلكترونية",
+                description: "دليل عملي وتطبيقي لفحص وتشخيص وتتبع أعطال اللوحات والدوار الإلكترونية خطوة بخطوة.",
+                cover: "book2.jpg",
+                driveUrl: "https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+            },
+            {
+                id: 3,
+                title: "أساسيات الإلكترونيات",
+                description: "بداية عملية لتعلم قواعد الإلكترونيات والمكونات الأساسية وتحليل الدوائر الكهربائية للمبتدئين.",
+                cover: "book3.jpg",
+                driveUrl: "https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing"
+            }
+        ];
+
+        // ----------------------------------------------------
+        // 2. إعدادات وتكوين Firebase
+        // ----------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyCk1-vMffY8YrFLkgCcISjFkzXjS-N5ikM",
             authDomain: "mohammed-library.firebaseapp.com",
@@ -457,113 +555,211 @@
             measurementId: "G-6D9R3R2E87"
         };
 
-        // تهيئة خدمات Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        let currentUser = null;
+        let isProfileComplete = false;
         let currentMode = 'login';
 
+        // ----------------------------------------------------
+        // 3. إدارة النوافذ المنبثقة (Modals)
+        // ----------------------------------------------------
         function openModal(mode) {
             currentMode = mode;
             const modal = document.getElementById('authModal');
             const title = document.getElementById('modalTitle');
-            const nameGroup = document.getElementById('nameGroup');
             const submitBtn = document.getElementById('submitBtn');
 
             if (mode === 'register') {
                 title.innerText = 'إنشاء حساب جديد';
-                nameGroup.style.display = 'block';
                 submitBtn.innerText = 'إنشاء الحساب';
             } else {
                 title.innerText = 'تسجيل الدخول';
-                nameGroup.style.display = 'none';
                 submitBtn.innerText = 'دخول';
             }
             modal.style.display = 'flex';
         }
 
-        function closeModal() {
-            document.getElementById('authModal').style.display = 'none';
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
         }
 
-        // تسجيل الدخول بواسطة البريد وكلمة السر
+        function openProfileModal() {
+            document.getElementById('profileModal').style.display = 'flex';
+        }
+
+        // ----------------------------------------------------
+        // 4. عرض الكتب والتحكم في حالة الوصول
+        // ----------------------------------------------------
+        function renderBooks() {
+            const container = document.getElementById('books-container');
+            container.innerHTML = '';
+
+            booksData.forEach(book => {
+                const card = document.createElement('div');
+                card.className = 'book-card';
+
+                const canAccess = currentUser && isProfileComplete;
+
+                card.innerHTML = `
+                    <img src="${book.cover}" alt="${book.title}" class="book-cover" onerror="this.src='https://via.placeholder.com/350x450?text=غلاف+الكتاب'">
+                    <div class="book-details">
+                        <div>
+                            <h3>${book.title}</h3>
+                            <p>${book.description}</p>
+                        </div>
+                        <button class="book-action-btn ${canAccess ? 'btn-unlocked' : 'btn-locked'}" onclick="accessBook('${book.driveUrl}')">
+                            ${canAccess 
+                                ? '<i class="fa-solid fa-book-open"></i> قراءة ودخول الكتاب' 
+                                : '<i class="fa-solid fa-lock"></i> سجل واكمل ملفك لفتح الكتاب'}
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function accessBook(url) {
+            if (!currentUser) {
+                alert('عفواً، يجب عليك تسجيل الدخول أو إنشاء حساب أولاً لقراءة هذا الكتاب!');
+                openModal('register');
+            } else if (!isProfileComplete) {
+                alert('يرجى إكمال بيانات الملف الشخصي (الاسم، الوظيفة والصورة) أولاً للوصول للكتب!');
+                openProfileModal();
+            } else {
+                window.open(url, '_blank');
+            }
+        }
+
+        // ----------------------------------------------------
+        // 5. التسجيل والدخول وتحديث الملف الشخصي
+        // ----------------------------------------------------
         async function handleAuth(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const fullName = document.getElementById('fullName').value;
 
             try {
                 if (currentMode === 'register') {
-                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-
-                    await db.collection('users').doc(user.uid).set({
-                        fullName: fullName,
-                        email: email,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-
-                    alert('تم إنشاء الحساب بنجاح!');
+                    await auth.createUserWithEmailAndPassword(email, password);
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
-                    alert('تم تسجيل الدخول بنجاح!');
                 }
-                closeModal();
+                closeModal('authModal');
             } catch (error) {
                 alert('خطأ: ' + error.message);
             }
         }
 
-        // تسجيل الدخول بواسطة Google
         async function loginWithGoogle() {
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
-                const result = await auth.signInWithPopup(provider);
-                const user = result.user;
-
-                // حفظ أو تحديث بيانات العضو في Firestore
-                await db.collection('users').doc(user.uid).set({
-                    fullName: user.displayName,
-                    email: user.email,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                }, { merge: true });
-
-                alert('تم تسجيل الدخول بواسطة Google بنجاح!');
-                closeModal();
+                await auth.signInWithPopup(provider);
+                closeModal('authModal');
             } catch (error) {
-                alert('خطأ أثناء التسجيل بـ Google: ' + error.message);
+                alert('خطأ في تسجيل الدخول بواسطة Google: ' + error.message);
             }
         }
 
-        // متابعة حالة المستخدم تلقائياً
-        auth.onAuthStateChanged(async (user) => {
+        async function saveProfile(event) {
+            event.preventDefault();
+            if (!currentUser) return;
+
+            const fullName = document.getElementById('profileFullName').value;
+            const job = document.getElementById('profileJob').value;
+            let photo = document.getElementById('profilePhoto').value;
+
+            if (!photo) {
+                photo = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=2563eb&color=fff`;
+            }
+
+            try {
+                await db.collection('users').doc(currentUser.uid).set({
+                    fullName: fullName,
+                    jobTitle: job,
+                    photoURL: photo,
+                    email: currentUser.email,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                alert('تم حفظ بيانات الملف الشخصي بنجاح! يمكنك الآن قراءة جميع الكتب.');
+                closeModal('profileModal');
+                
+                // إعادة فحص مستند المستخدم لتحديث الواجهة
+                checkUserProfile(currentUser);
+            } catch (error) {
+                alert('خطأ أثناء حفظ البيانات: ' + error.message);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 6. مراقبة حالة المستخدم والتحقق من الملف الشخصي
+        // ----------------------------------------------------
+        async function checkUserProfile(user) {
+            if (!user) return;
+
+            const userDoc = await db.collection('users').doc(user.uid).get();
+
+            if (userDoc.exists && userDoc.data().fullName && userDoc.data().jobTitle) {
+                const data = userDoc.data();
+                isProfileComplete = true;
+
+                // إظهار بيانات المستخدم بالهيدر
+                document.getElementById('user-name').innerText = data.fullName;
+                document.getElementById('user-job').innerText = data.jobTitle;
+                document.getElementById('user-avatar').src = data.photoURL || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.fullName)}`;
+
+                // التجهيز المسبق لحقول التعديل
+                document.getElementById('profileFullName').value = data.fullName;
+                document.getElementById('profileJob').value = data.jobTitle;
+                document.getElementById('profilePhoto').value = data.photoURL || '';
+
+                // تحديث شريط التنبيه الهيدر
+                document.getElementById('status-banner').style.background = 'rgba(16, 185, 129, 0.1)';
+                document.getElementById('status-banner').style.borderColor = 'var(--success-color)';
+                document.getElementById('status-message').innerHTML = '<i class="fa-solid fa-circle-check" style="color: #10b981; margin-left: 8px;"></i> مرحباً بك! تمت مراجعة ملفك الشخصي بنجاح ويمكنك الآن الوصول لجميع الكتب وروابطها.';
+                document.getElementById('status-btn').style.display = 'none';
+
+            } else {
+                isProfileComplete = false;
+                // توجيه المستخدم لإكمال الملف الشخصي
+                openProfileModal();
+            }
+
+            renderBooks();
+        }
+
+        auth.onAuthStateChanged((user) => {
+            currentUser = user;
             const guestActions = document.getElementById('guest-actions');
             const userActions = document.getElementById('user-actions');
 
             if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                let name = user.displayName || 'عضو المكتبة';
-
-                if (userDoc.exists && userDoc.data().fullName) {
-                    name = userDoc.data().fullName;
-                }
-
-                document.getElementById('user-name').innerText = name;
-                document.getElementById('user-initials').innerText = name.charAt(0).toUpperCase();
-
                 guestActions.style.display = 'none';
                 userActions.style.display = 'flex';
+                checkUserProfile(user);
             } else {
+                isProfileComplete = false;
                 guestActions.style.display = 'flex';
                 userActions.style.display = 'none';
+
+                document.getElementById('status-banner').style.background = 'rgba(37, 99, 235, 0.1)';
+                document.getElementById('status-banner').style.borderColor = 'var(--primary-blue)';
+                document.getElementById('status-message').innerHTML = '<i class="fa-solid fa-lock" style="color: #f59e0b; margin-left: 8px;"></i> تنبيه: يجب عليك تسجيل الدخول وإكمال بيانات ملفك الشخصي لتتمكن من قراءة الكتب وتحميلها.';
+                document.getElementById('status-btn').style.display = 'inline-block';
+
+                renderBooks();
             }
         });
 
         function logout() {
             auth.signOut();
         }
+
+        // التشغيل الأولي
+        renderBooks();
     </script>
 </body>
 </html>
