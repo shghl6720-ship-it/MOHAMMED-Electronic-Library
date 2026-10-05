@@ -135,6 +135,20 @@
             box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
         }
 
+        .btn-google {
+            background: #ffffff;
+            color: #000000;
+            border: 1px solid #ddd;
+            width: 100%;
+            justify-content: center;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .btn-google:hover {
+            background: #f1f1f1;
+        }
+
         /* نافذة تسجيل الدخول */
         .modal-overlay {
             position: fixed;
@@ -215,6 +229,26 @@
             cursor: pointer;
             margin-top: 10px;
         }
+
+        .divider {
+            text-align: center;
+            margin: 15px 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            position: relative;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: var(--card-border);
+        }
+
+        .divider::before { right: 0; }
+        .divider::after { left: 0; }
 
         /* ملف المستخدم */
         .user-profile {
@@ -398,6 +432,12 @@
 
                 <button type="submit" class="submit-btn" id="submitBtn">دخول</button>
             </form>
+
+            <div class="divider">أو</div>
+
+            <button type="button" class="btn btn-google" onclick="loginWithGoogle()">
+                <i class="fa-brands fa-google" style="color: #ea4335;"></i> الدخول بواسطة Google
+            </button>
         </div>
     </div>
 
@@ -447,6 +487,7 @@
             document.getElementById('authModal').style.display = 'none';
         }
 
+        // تسجيل الدخول بواسطة البريد وكلمة السر
         async function handleAuth(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
@@ -475,13 +516,35 @@
             }
         }
 
+        // تسجيل الدخول بواسطة Google
+        async function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                // حفظ أو تحديث بيانات العضو في Firestore
+                await db.collection('users').doc(user.uid).set({
+                    fullName: user.displayName,
+                    email: user.email,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+
+                alert('تم تسجيل الدخول بواسطة Google بنجاح!');
+                closeModal();
+            } catch (error) {
+                alert('خطأ أثناء التسجيل بـ Google: ' + error.message);
+            }
+        }
+
+        // متابعة حالة المستخدم تلقائياً
         auth.onAuthStateChanged(async (user) => {
             const guestActions = document.getElementById('guest-actions');
             const userActions = document.getElementById('user-actions');
 
             if (user) {
                 const userDoc = await db.collection('users').doc(user.uid).get();
-                let name = 'عضو المكتبة';
+                let name = user.displayName || 'عضو المكتبة';
 
                 if (userDoc.exists && userDoc.data().fullName) {
                     name = userDoc.data().fullName;
