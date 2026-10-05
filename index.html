@@ -135,7 +135,7 @@
             box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
         }
 
-        /* نافذة تسجيل الدخول (Modal) */
+        /* نافذة تسجيل الدخول */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -216,7 +216,7 @@
             margin-top: 10px;
         }
 
-        /* بوابة الأعضاء (User Profile) */
+        /* ملف المستخدم */
         .user-profile {
             display: none;
             align-items: center;
@@ -305,7 +305,6 @@
 
 <body>
 
-    <!-- الهيدر -->
     <header>
         <div class="container nav-container">
             <div class="logo-group">
@@ -317,13 +316,11 @@
             </div>
 
             <div class="nav-actions">
-                <!-- أزرار الزائر -->
                 <div id="guest-actions" style="display: flex; gap: 8px;">
                     <button class="btn btn-outline" onclick="openModal('login')"><i class="fa-solid fa-right-to-bracket"></i> تسجيل الدخول</button>
                     <button class="btn btn-primary" onclick="openModal('register')"><i class="fa-solid fa-user-plus"></i> إنشاء حساب جديد</button>
                 </div>
 
-                <!-- بوابة العضو (تظهر تلقائياً بعد الدخول) -->
                 <div id="user-actions" class="user-profile">
                     <div class="user-avatar" id="user-initials">U</div>
                     <span id="user-name" style="font-size: 13px; font-weight: 600;">المستخدم</span>
@@ -333,7 +330,6 @@
         </div>
     </header>
 
-    <!-- الكتب المتاحة -->
     <main class="container">
         <div class="books-grid">
 
@@ -379,7 +375,6 @@
         </div>
     </main>
 
-    <!-- نافذة تسجيل الدخول / إنشاء حساب -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
@@ -410,16 +405,16 @@
         © 2026 مكتبة محمد للإلكترونيات - جميع الحقوق محفوظة
     </footer>
 
-    <!-- سكربت الربط مع Firebase -->
     <script>
-        // 1. استبدل القيم التالية ببيانات مشروعك من Firebase Console
+        // إعدادات Firebase الخاصة بمشروعك
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "ضع_الـ_apiKey_من_الشاشة_هنا",
+            authDomain: "mohammed-library.firebaseapp.com",
+            projectId: "mohammed-library",
+            storageBucket: "mohammed-library.firebasestorage.app",
+            messagingSenderId: "1072178332800",
+            appId: "1:1072178332800:web:9f8a321baaa08216122d28",
+            measurementId: "G-P7Y4373MTS"
         };
 
         // تهيئة خدمات Firebase
@@ -452,7 +447,6 @@
             document.getElementById('authModal').style.display = 'none';
         }
 
-        // معالجة تسجيل الدخول / الإنشاء مع Firebase
         async function handleAuth(event) {
             event.preventDefault();
             const email = document.getElementById('email').value;
@@ -461,11 +455,9 @@
 
             try {
                 if (currentMode === 'register') {
-                    // 1. إنشاء حساب جديد في Firebase Auth
                     const userCredential = await auth.createUserWithEmailAndPassword(email, password);
                     const user = userCredential.user;
 
-                    // 2. حفظ بيانات العضو في قاعدة بيانات Firestore
                     await db.collection('users').doc(user.uid).set({
                         fullName: fullName,
                         email: email,
@@ -474,7 +466,6 @@
 
                     alert('تم إنشاء الحساب بنجاح!');
                 } else {
-                    // تسجيل الدخول
                     await auth.signInWithEmailAndPassword(email, password);
                     alert('تم تسجيل الدخول بنجاح!');
                 }
@@ -484,13 +475,11 @@
             }
         }
 
-        // متابعة حالة تسجيل الدخول تلقائياً
         auth.onAuthStateChanged(async (user) => {
             const guestActions = document.getElementById('guest-actions');
             const userActions = document.getElementById('user-actions');
 
             if (user) {
-                // جلب بيانات العضو من Firestore
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 let name = 'عضو المكتبة';
 
@@ -509,7 +498,6 @@
             }
         });
 
-        // تسجيل الخروج
         function logout() {
             auth.signOut();
         }
