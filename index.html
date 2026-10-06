@@ -666,7 +666,7 @@
             <section class="hero-section">
                 <div>
                     <h1 class="hero-title">MOHAMMED Electronic Library</h1>
-                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية. يمكنك التصفح وقراءة الكتب وتحميلها بنقرة واحدة.</p>
+                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية. يمكنك التصفح وقراءة الكتب وتحميلها بنقرة واحدة داخل المنصة.</p>
                     <div style="display:flex; gap:12px;">
                         <button class="btn btn-cyan" onclick="switchTab('books')"><i class="fa-solid fa-book-open"></i> استعرض الكتب</button>
                     </div>
@@ -711,8 +711,8 @@
                             <textarea id="newBookDesc" class="form-control" rows="2" placeholder="وصف محتوى الكتاب وما يناقشه..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label>رابط الكتاب / المجلد على Google Drive *</label>
-                            <input type="url" id="newBookUrl" class="form-control" placeholder="https://drive.google.com/..." required>
+                            <label>رابط الكتاب (رابط Google Drive أو GitHub PDF) *</label>
+                            <input type="url" id="newBookUrl" class="form-control" placeholder="https://raw.githubusercontent.com/.../book.pdf" required>
                         </div>
                         <div class="form-group">
                             <label>رابط صورة الغلاف (اختياري)</label>
@@ -804,6 +804,22 @@
         <div class="ai-chat-footer">
             <input type="text" id="ai-input" class="form-control" placeholder="اكتب سؤالك الهندسي هنا..." onkeypress="if(event.key==='Enter') sendAIMessage()">
             <button class="btn btn-cyan" onclick="sendAIMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Modal: Internal PDF Viewer (فتح الكتاب داخل المنصة بدون تحميل) -->
+    <div class="modal-overlay" id="pdfViewerModal">
+        <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
+                <h3 id="pdfViewerTitle" style="color: var(--primary-cyan); font-size: 16px; font-weight: 800;"><i class="fa-solid fa-book-open"></i> قراءة الكتاب</h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <a id="pdfExternalLink" href="#" target="_blank" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-up-right-from-square"></i> فتح في تبويب خارجي</a>
+                    <button class="close-modal" onclick="closeModal('pdfViewerModal')" style="position: static; font-size: 18px;">✕ إغلاق</button>
+                </div>
+            </div>
+            <div style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; background: #1a1a1a;">
+                <iframe id="pdfFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
         </div>
     </div>
 
@@ -942,7 +958,9 @@
                 return;
             }
 
-            const html = list.map(b => `
+            const html = list.map(b => {
+                const safeTitle = b.title.replace(/'/g, "\\'");
+                return `
                 <div class="book-card">
                     <div class="book-cover-box">
                         <img src="${b.cover || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop'}" class="book-cover-img" alt="${b.title}">
@@ -952,10 +970,10 @@
                             <h3 class="book-title">${b.title}</h3>
                             <p class="book-desc">${b.desc || 'مستند مرجعي متقدم في الإلكترونيات والهندسة.'}</p>
                         </div>
-                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}')"><i class="fa-solid fa-book-open"></i> قراءة ودخول الكتاب</button>
+                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}')"><i class="fa-solid fa-book-open"></i> قراءة ودخول الكتاب</button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             document.getElementById('home-books-container').innerHTML = html;
             document.getElementById('all-books-container').innerHTML = html;
@@ -1027,7 +1045,8 @@
             renderBooks(filtered);
         }
 
-        function accessBook(url) {
+        // دالة عرض وفتح الكتاب داخل المنصة بدون تحميل تلقائي
+        function accessBook(url, title = 'عرض الكتاب') {
             if (!currentUser) {
                 alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لرابط الكتاب!');
                 openAuthModal('register');
@@ -1035,7 +1054,17 @@
                 alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل صلاحية القراءة!');
                 openProfileModal();
             } else {
-                window.open(url, '_blank');
+                let displayUrl = url;
+
+                // تحويل أي رابط مباشر لملف PDF (سواء من GitHub أو غيره) ليعرض داخلياً عبر Google Viewer بدلاً من التحميل
+                if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
+                    displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
+                }
+
+                document.getElementById('pdfViewerTitle').innerText = title;
+                document.getElementById('pdfExternalLink').href = url;
+                document.getElementById('pdfFrame').src = displayUrl;
+                document.getElementById('pdfViewerModal').style.display = 'flex';
             }
         }
 
@@ -1237,7 +1266,12 @@
         }
 
         function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
+            const target = document.getElementById(id);
+            if (target) target.style.display = 'none';
+
+            if (id === 'pdfViewerModal') {
+                document.getElementById('pdfFrame').src = '';
+            }
         }
 
         function openProfileModal() {
