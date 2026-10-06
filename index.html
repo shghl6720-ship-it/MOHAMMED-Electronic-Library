@@ -43,6 +43,7 @@
             padding: 0;
             font-family: 'Cairo', sans-serif;
             scroll-behavior: smooth;
+            user-select: none; /* حماية المحتوى من النسخ */
         }
 
         body {
@@ -106,18 +107,19 @@
         }
 
         .brand-icon {
-            width: 46px;
-            height: 46px;
+            width: 48px;
+            height: 48px;
             background: linear-gradient(135deg, var(--primary-cyan), var(--secondary-purple));
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 22px;
             color: #fff;
             box-shadow: var(--shadow-glow);
             overflow: hidden;
             border: 1px solid var(--border-glow);
+            flex-shrink: 0;
         }
 
         .brand-icon img {
@@ -127,10 +129,13 @@
         }
 
         .brand-text h1 {
-            font-size: 17px;
+            font-size: 18px;
             font-weight: 900;
             letter-spacing: -0.3px;
             color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .brand-text span {
@@ -295,13 +300,14 @@
             color: #fff;
             font-size: 14px;
             outline: none;
+            user-select: text;
         }
 
         .search-input:focus {
             border-color: var(--primary-cyan);
         }
 
-        /* Books Grid */
+        /* Cards Grid */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -549,7 +555,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0, 0, 0, 0.88);
             backdrop-filter: blur(8px);
             display: none;
             justify-content: center;
@@ -599,6 +605,7 @@
             color: #fff;
             outline: none;
             font-size: 14px;
+            user-select: text;
         }
 
         .tab-page {
@@ -617,9 +624,21 @@
             font-size: 13px;
             text-align: center;
         }
+
+        /* شريط حماية من التنزيل */
+        .pdf-security-guard {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 55px;
+            background: transparent;
+            z-index: 10;
+            pointer-events: auto;
+        }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div class="pcb-bg-overlay"></div>
 
@@ -640,11 +659,16 @@
             <nav class="nav-links">
                 <button class="nav-item active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> الرئيسية</button>
                 <button class="nav-item" onclick="switchTab('books')"><i class="fa-solid fa-book"></i> جميع الكتب (<span id="books-count-badge">0</span>)</button>
+                <button class="nav-item" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> الكورسات والدورات (<span id="courses-count-badge">0</span>)</button>
                 <button class="nav-item" id="admin-nav-btn" style="display: none; color: var(--warning);" onclick="switchTab('admin')"><i class="fa-solid fa-sliders"></i> لوحة التحكم</button>
             </nav>
 
             <div>
-                <div id="guest-actions" style="display: flex; gap: 8px;">
+                <div id="auth-loading-spinner" style="font-size: 12px; color: var(--primary-cyan); display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-spinner fa-spin"></i> جاري مزامنة الحساب...
+                </div>
+
+                <div id="guest-actions" style="display: none; gap: 8px;">
                     <button class="btn btn-outline" onclick="openAuthModal('login')"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
                     <button class="btn btn-cyan" onclick="openAuthModal('register')"><i class="fa-solid fa-user-plus"></i> حساب جديد</button>
                 </div>
@@ -666,9 +690,10 @@
             <section class="hero-section">
                 <div>
                     <h1 class="hero-title">MOHAMMED Electronic Library</h1>
-                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية. يمكنك التصفح وقراءة الكتب وتحميلها بنقرة واحدة داخل المنصة.</p>
+                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية والكورسات المتقدمة. تصفح وقسّم واقرأ الكتب على المنصة مباشرة وبأمان كامل.</p>
                     <div style="display:flex; gap:12px;">
                         <button class="btn btn-cyan" onclick="switchTab('books')"><i class="fa-solid fa-book-open"></i> استعرض الكتب</button>
+                        <button class="btn btn-purple" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> قسم الكورسات</button>
                     </div>
                 </div>
             </section>
@@ -677,7 +702,7 @@
             <section class="search-container">
                 <div class="search-input-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="text" id="home-search-input" class="search-input" placeholder="🔍 ابحث عن اسم كتاب، موضوع، أو تخصص (مثال: PLC, Flyback, Multimeter)..." oninput="filterBooks(this.value)">
+                    <input type="text" id="home-search-input" class="search-input" placeholder="🔍 ابحث عن اسم كتاب، موضوع، أو كورس (مثال: PLC, Flyback, Arduino)..." oninput="filterBooks(this.value)">
                 </div>
             </section>
 
@@ -693,10 +718,16 @@
             <div class="books-grid" id="all-books-container"></div>
         </div>
 
+        <!-- Courses Tab -->
+        <div id="tab-courses" class="tab-page">
+            <h2 style="margin: 30px 0 20px; color: var(--primary-cyan);"><i class="fa-solid fa-graduation-cap"></i> الدورات والشروحات الهندسية الكورسات</h2>
+            <div class="books-grid" id="courses-container"></div>
+        </div>
+
         <!-- Admin Dashboard Tab -->
         <div id="tab-admin" class="tab-page">
             <div class="admin-box">
-                <h2 style="margin-bottom: 20px; color: var(--warning);"><i class="fa-solid fa-sliders"></i> لوحة تحكم وإدارة المكتبة</h2>
+                <h2 style="margin-bottom: 20px; color: var(--warning);"><i class="fa-solid fa-sliders"></i> لوحة تحكم وإدارة المنصة</h2>
                 
                 <!-- إضافة كتاب جديد -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
@@ -711,7 +742,7 @@
                             <textarea id="newBookDesc" class="form-control" rows="2" placeholder="وصف محتوى الكتاب وما يناقشه..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label>رابط الكتاب (رابط Google Drive أو GitHub PDF) *</label>
+                            <label>رابط الكتاب (رابط GitHub PDF أو Google Drive) *</label>
                             <input type="url" id="newBookUrl" class="form-control" placeholder="https://raw.githubusercontent.com/.../book.pdf" required>
                         </div>
                         <div class="form-group">
@@ -719,6 +750,30 @@
                             <input type="url" id="newBookCover" class="form-control" placeholder="https://images.unsplash.com/...">
                         </div>
                         <button type="submit" class="btn btn-cyan"><i class="fa-solid fa-floppy-disk"></i> نشر وإضافة الكتاب للمكتبة</button>
+                    </form>
+                </div>
+
+                <!-- إضافة كورس جديد -->
+                <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
+                    <h3 style="font-size: 16px; color: var(--secondary-purple); margin-bottom: 16px;"><i class="fa-solid fa-graduation-cap"></i> إضافة كورس تعليمي جديد</h3>
+                    <form onsubmit="addCourseFromAdmin(event)">
+                        <div class="form-group">
+                            <label>عنوان الكورس / الدورة *</label>
+                            <input type="text" id="newCourseTitle" class="form-control" placeholder="مثال: كورس الاحتراف في برمجة الـ PLC" required>
+                        </div>
+                        <div class="form-group">
+                            <label>وصف الكورس</label>
+                            <textarea id="newCourseDesc" class="form-control" rows="2" placeholder="تفاصيل الدورة وما يتعلمه المهندس..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط الدورة / قائمة التشغيل (YouTube أو غيرها) *</label>
+                            <input type="url" id="newCourseUrl" class="form-control" placeholder="https://www.youtube.com/embed/..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>رابط صورة الكورس (اختياري)</label>
+                            <input type="url" id="newCourseCover" class="form-control" placeholder="https://images.unsplash.com/...">
+                        </div>
+                        <button type="submit" class="btn btn-purple"><i class="fa-solid fa-plus-circle"></i> نشر وإضافة الكورس</button>
                     </form>
                 </div>
 
@@ -758,11 +813,25 @@
                             <tr>
                                 <th>#</th>
                                 <th>عنوان الكتاب</th>
-                                <th>الرابط</th>
                                 <th>إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="admin-books-table"></tbody>
+                    </table>
+                </div>
+
+                <!-- إدارة الكورسات الحالية -->
+                <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-list-check"></i> الكورسات المنشورة حالياً</h3>
+                <div class="table-wrap" style="margin-bottom: 35px;">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>عنوان الكورس</th>
+                                <th>إجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-courses-table"></tbody>
                     </table>
                 </div>
 
@@ -799,7 +868,7 @@
             <button onclick="toggleAIChat()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button>
         </div>
         <div class="ai-chat-body" id="ai-chat-body">
-            <div class="ai-msg">مرحباً بك! أنا مساعدك الذكي في MOHAMMED Electronic Library. اسألني عن القوانين الهندسية، المكونات، أو اطلب مني البحث عن كتاب!</div>
+            <div class="ai-msg">مرحباً بك! أنا مساعدك الذكي في MOHAMMED Electronic Library. اسألني عن القوانين الهندسية، المكونات، أو اطلب مني البحث عن كتاب أو كورس!</div>
         </div>
         <div class="ai-chat-footer">
             <input type="text" id="ai-input" class="form-control" placeholder="اكتب سؤالك الهندسي هنا..." onkeypress="if(event.key==='Enter') sendAIMessage()">
@@ -807,17 +876,17 @@
         </div>
     </div>
 
-    <!-- Modal: Internal PDF Viewer (فتح الكتاب داخل المنصة بدون تحميل) -->
+    <!-- Modal: Internal Protected PDF/Course Viewer (ممنوع التحميل) -->
     <div class="modal-overlay" id="pdfViewerModal">
-        <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px;">
+        <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px; position:relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                <h3 id="pdfViewerTitle" style="color: var(--primary-cyan); font-size: 16px; font-weight: 800;"><i class="fa-solid fa-book-open"></i> قراءة الكتاب</h3>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <a id="pdfExternalLink" href="#" target="_blank" class="btn btn-outline" style="padding: 4px 10px; font-size: 12px;"><i class="fa-solid fa-up-right-from-square"></i> فتح في تبويب خارجي</a>
-                    <button class="close-modal" onclick="closeModal('pdfViewerModal')" style="position: static; font-size: 18px;">✕ إغلاق</button>
-                </div>
+                <h3 id="pdfViewerTitle" style="color: var(--primary-cyan); font-size: 16px; font-weight: 800;"><i class="fa-solid fa-book-open"></i> قراءة المحتوى (محمي من التنزيل)</h3>
+                <button class="close-modal" onclick="closeModal('pdfViewerModal')" style="position: static; font-size: 16px; background: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 4px 12px; border-radius: 6px; border: 1px solid var(--danger);">✕ إغلاق النافذة</button>
             </div>
-            <div style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; background: #1a1a1a;">
+            
+            <div style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; background: #1a1a1a; position: relative;">
+                <!-- حماية الشريط العلوي لمنع الضغط على أيقونة التحميل -->
+                <div class="pdf-security-guard"></div>
                 <iframe id="pdfFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
         </div>
@@ -852,7 +921,7 @@
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('profileModal')">✕</button>
             <h3 style="margin-bottom: 8px; text-align: center; color: var(--primary-cyan);"><i class="fa-solid fa-user-gear"></i> إكمال وتحديث الملف الشخصي</h3>
-            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">البيانات مطلوبة لتفعيل صلاحية الوصول لقراءة وتحميل الكتب</p>
+            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">البيانات مطلوبة لتفعيل صلاحية القراءة ومشاهدة الكورسات</p>
 
             <form onsubmit="saveProfile(event)">
                 <div class="image-preview-container">
@@ -887,9 +956,10 @@
 
     <script>
         // ----------------------------------------------------
-        // 1. Firebase Config & Initial Books
+        // 1. Firebase Config & Initial Data
         // ----------------------------------------------------
         const SUPER_ADMIN_EMAIL = "mohameda2hussiena2@gmail.com";
+        const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 Hour limit
 
         const firebaseConfig = {
             apiKey: "AIzaSyCk1-vMffY8YrFLkgCcISjFkzXjS-N5ikM",
@@ -905,27 +975,31 @@
         const auth = firebase.auth();
         const db = firebase.firestore();
 
+        // تفعيل حفظ الجلسة محلياً لمنع تسجيل الخروج عند الـ Refresh
+        auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
+
         let currentUser = null;
         let isProfileComplete = false;
         let authMode = 'login';
         let booksList = [];
+        let coursesList = [];
         let selectedAvatarBase64 = "";
         let selectedLogoBase64 = "";
+        let sessionTimerRef = null;
 
         const initialBooksSeed = [
             { title: 'الأفومتر الديجيتال Digital Multimeter (DMM)', desc: 'دليل عملي شامل لاستخدام وشرح قياسات الأفومتر الديجيتال وفحص العناصر الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
             { title: 'الدليل الشامل لأهم المستشعرات والوحدات الإلكترونية المستخدمة في مشاريع Arduino', desc: 'مرجع كامل لشرح أشهر مستشعرات الحساسات وتوصيلها مع لوحات أردوينو.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'كتاب خرافي عن أنواع المكونات الإلكترونية ووظائفها', desc: 'شرح مفصل لكافة العناصر الإلكترونية من المقاومات والمكثفات والترانزستورات.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'هل تعلم أن زيادة بسيطة في جهد الدخل قد تتسبب في تلف دائرة إلكترونية كاملة خلال لحظات', desc: 'نصائح هندسية وحسابات حماية الدوائر الإلكترونية من Overvoltage وتيارات البدء.', cover: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'Basic Electronic Component', desc: 'Fundamental concepts of active and passive electronic components and circuit analysis.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'Designing a DCM Flyback Converter', desc: 'Comprehensive step-by-step guide to design and calculation of Discontinuous Conduction Mode Flyback Converters.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'Forward Type Switched Mode Power Supply', desc: 'Design, topologies, and feedback control loop for Forward SMPS power converters.', cover: 'https://images.unsplash.com/photo-1517077304055-6e89abbf09b0?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'Half Bridge Converter Topology', desc: 'Analysis and switching dynamics of Half-Bridge inverter circuits and power MOSFET driving.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'PLC Handbook - Programmable Logic Controllers', desc: 'Complete handbook for Industrial Automation, Ladder Logic Programming, and PLC Wiring.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' }
+            { title: 'كتاب خرافي عن أنواع المكونات الإلكترونية ووظائفها', desc: 'شرح مفصل لكافة العناصر الإلكترونية من المقاومات والمكثفات والترانزستورات.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' }
+        ];
+
+        const initialCoursesSeed = [
+            { title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' },
+            { title: 'دورة تصميم المحولات وإمدادات الطاقة Switched Mode Power Supply (SMPS)', desc: 'شرح احترافي للتحكم في دوائر Flyback & Half Bridge والتغذية العكسية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f31' }
         ];
 
         // ----------------------------------------------------
-        // 2. Realtime Books Sync
+        // 2. Realtime Books & Courses Sync
         // ----------------------------------------------------
         function syncBooksLive() {
             db.collection('books').onSnapshot(async (snapshot) => {
@@ -950,9 +1024,32 @@
             });
         }
 
+        function syncCoursesLive() {
+            db.collection('courses').onSnapshot(async (snapshot) => {
+                if (snapshot.empty) {
+                    for (const course of initialCoursesSeed) {
+                        await db.collection('courses').add({
+                            ...course,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    }
+                    return;
+                }
+
+                coursesList = [];
+                snapshot.forEach(doc => {
+                    coursesList.push({ id: doc.id, ...doc.data() });
+                });
+
+                document.getElementById('courses-count-badge').innerText = coursesList.length;
+                renderCourses(coursesList);
+                renderAdminCoursesTable(coursesList);
+            });
+        }
+
         function renderBooks(list) {
             if (!list || list.length === 0) {
-                const emptyHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:1/-1; padding:30px;">لا توجد كتب مطابقة للبحث.</p>';
+                const emptyHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:1/-1; padding:30px;">لا توجد كتب مطابقة.</p>';
                 document.getElementById('home-books-container').innerHTML = emptyHTML;
                 document.getElementById('all-books-container').innerHTML = emptyHTML;
                 return;
@@ -970,7 +1067,7 @@
                             <h3 class="book-title">${b.title}</h3>
                             <p class="book-desc">${b.desc || 'مستند مرجعي متقدم في الإلكترونيات والهندسة.'}</p>
                         </div>
-                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}')"><i class="fa-solid fa-book-open"></i> قراءة ودخول الكتاب</button>
+                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}')"><i class="fa-solid fa-book-open"></i> قراءة الكتاب بالمنصة</button>
                     </div>
                 </div>
             `}).join('');
@@ -979,19 +1076,59 @@
             document.getElementById('all-books-container').innerHTML = html;
         }
 
+        function renderCourses(list) {
+            const container = document.getElementById('courses-container');
+            if (!list || list.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:1/-1; padding:30px;">لا توجد كورسات مضافة حالياً.</p>';
+                return;
+            }
+
+            container.innerHTML = list.map(c => {
+                const safeTitle = c.title.replace(/'/g, "\\'");
+                return `
+                <div class="book-card">
+                    <div class="book-cover-box">
+                        <img src="${c.cover || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop'}" class="book-cover-img" alt="${c.title}">
+                    </div>
+                    <div class="book-details">
+                        <div>
+                            <h3 class="book-title">${c.title}</h3>
+                            <p class="book-desc">${c.desc || 'كورس تعليمي وتطبيقي شامل في الهندسة.'}</p>
+                        </div>
+                        <button class="btn btn-purple" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessCourse('${c.url}', '${safeTitle}')"><i class="fa-solid fa-circle-play"></i> مشاهدة الدورة الآن</button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
         function renderAdminBooksTable(list) {
             const tbody = document.getElementById('admin-books-table');
             tbody.innerHTML = '';
-
             let idx = 1;
             list.forEach(b => {
                 tbody.innerHTML += `
                     <tr>
                         <td>${idx++}</td>
                         <td style="font-weight:700;">${b.title}</td>
-                        <td><a href="${b.url}" target="_blank" style="color:var(--primary-cyan); text-decoration:none;"><i class="fa-solid fa-external-link"></i> الرابط</a></td>
                         <td>
                             <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="deleteBook('${b.id}')"><i class="fa-solid fa-trash"></i> حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function renderAdminCoursesTable(list) {
+            const tbody = document.getElementById('admin-courses-table');
+            tbody.innerHTML = '';
+            let idx = 1;
+            list.forEach(c => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${idx++}</td>
+                        <td style="font-weight:700;">${c.title}</td>
+                        <td>
+                            <button class="btn btn-danger" style="padding:4px 10px; font-size:11px;" onclick="deleteCourse('${c.id}')"><i class="fa-solid fa-trash"></i> حذف</button>
                         </td>
                     </tr>
                 `;
@@ -1003,39 +1140,42 @@
             const title = document.getElementById('newBookTitle').value;
             const desc = document.getElementById('newBookDesc').value;
             const url = document.getElementById('newBookUrl').value;
-            let cover = document.getElementById('newBookCover').value;
-
-            if (!cover) {
-                cover = 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
-            }
+            let cover = document.getElementById('newBookCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
 
             try {
-                await db.collection('books').add({
-                    title: title,
-                    desc: desc,
-                    url: url,
-                    cover: cover,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
+                await db.collection('books').add({ title, desc, url, cover, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                 alert('تم نشر وإضافة الكتاب بنجاح للمكتبة!');
-                document.getElementById('newBookTitle').value = '';
-                document.getElementById('newBookDesc').value = '';
-                document.getElementById('newBookUrl').value = '';
-                document.getElementById('newBookCover').value = '';
+                event.target.reset();
             } catch (err) {
                 alert('خطأ أثناء النشر: ' + err.message);
             }
         }
 
+        async function addCourseFromAdmin(event) {
+            event.preventDefault();
+            const title = document.getElementById('newCourseTitle').value;
+            const desc = document.getElementById('newCourseDesc').value;
+            const url = document.getElementById('newCourseUrl').value;
+            let cover = document.getElementById('newCourseCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
+
+            try {
+                await db.collection('courses').add({ title, desc, url, cover, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+                alert('تم نشر وإضافة الكورس بنجاح للمنصة!');
+                event.target.reset();
+            } catch (err) {
+                alert('خطأ أثناء إضافة الكورس: ' + err.message);
+            }
+        }
+
         async function deleteBook(bookId) {
-            if (confirm('هل أنت تأكد من رغبتك في حذف هذا الكتاب بشكل نهائي؟')) {
-                try {
-                    await db.collection('books').doc(bookId).delete();
-                    alert('تم حذف الكتاب بنجاح.');
-                } catch (err) {
-                    alert('خطأ في الحذف: ' + err.message);
-                }
+            if (confirm('هل أنت تأكد من رغبتك في حذف هذا الكتاب؟')) {
+                await db.collection('books').doc(bookId).delete();
+            }
+        }
+
+        async function deleteCourse(courseId) {
+            if (confirm('هل أنت تأكد من رغبتك في حذف هذا الكورس؟')) {
+                await db.collection('courses').doc(courseId).delete();
             }
         }
 
@@ -1045,10 +1185,10 @@
             renderBooks(filtered);
         }
 
-        // دالة عرض وفتح الكتاب داخل المنصة بدون تحميل تلقائي
+        // دالة عرض الكتاب داخل المنصة بدون تحميل نهائياً
         function accessBook(url, title = 'عرض الكتاب') {
             if (!currentUser) {
-                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لرابط الكتاب!');
+                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لخدمات القراءة!');
                 openAuthModal('register');
             } else if (!isProfileComplete) {
                 alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل صلاحية القراءة!');
@@ -1056,20 +1196,34 @@
             } else {
                 let displayUrl = url;
 
-                // تحويل أي رابط مباشر لملف PDF (سواء من GitHub أو غيره) ليعرض داخلياً عبر Google Viewer بدلاً من التحميل
                 if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
+                    // فتح داخل Google Doc Viewer مع تعطيل إمكانية التحميل
                     displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
                 }
 
                 document.getElementById('pdfViewerTitle').innerText = title;
-                document.getElementById('pdfExternalLink').href = url;
                 document.getElementById('pdfFrame').src = displayUrl;
                 document.getElementById('pdfViewerModal').style.display = 'flex';
             }
         }
 
+        // دالة عرض الكورس
+        function accessCourse(url, title = 'مشاهدة الكورس') {
+            if (!currentUser) {
+                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول للكورسات!');
+                openAuthModal('register');
+            } else if (!isProfileComplete) {
+                alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل الوصول للكورسات!');
+                openProfileModal();
+            } else {
+                document.getElementById('pdfViewerTitle').innerText = title;
+                document.getElementById('pdfFrame').src = url;
+                document.getElementById('pdfViewerModal').style.display = 'flex';
+            }
+        }
+
         // ----------------------------------------------------
-        // 3. AI Assistant Drawer Logic
+        // 3. AI Assistant Drawer
         // ----------------------------------------------------
         function toggleAIChat() {
             const drawer = document.getElementById('ai-chat-drawer');
@@ -1086,11 +1240,11 @@
             input.value = '';
 
             setTimeout(() => {
-                let answer = "يمكنك العثور على مراجع ومستندات في المكتبة تخص: " + txt;
+                let answer = "يمكنك البحث في قسم المكتبة أو قسم الكورسات لمزيد من المعلومات التفصيلية عن: " + txt;
                 if (txt.toLowerCase().includes('kirchhoff') || txt.includes('كيرشوف')) {
                     answer = "قانون كيرشوف للجهد (KVL): مجموع الفروق في الجهد الكهربائي حول أي مسار مغلق يساوي صفراً.";
                 } else if (txt.toLowerCase().includes('plc') || txt.includes('بي ال سي')) {
-                    answer = "المتحكم المنطقي القابل للبرمجة (PLC): جهاز كمبيوتر صناعي مخصص للتحكم في الآلات والعمليات الصناعية.";
+                    answer = "المتحكم المنطقي القابل للبرمجة (PLC): يمكنك العثور على كورسات مفصلة لـ PLC في قسم الكورسات بالمنصة!";
                 }
                 body.innerHTML += `<div class="ai-msg">${answer}</div>`;
                 body.scrollTop = body.scrollHeight;
@@ -1098,12 +1252,11 @@
         }
 
         // ----------------------------------------------------
-        // 4. Image Select & Logo Settings
+        // 4. Logo Settings & Profile Images
         // ----------------------------------------------------
         function handleAvatarSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 selectedAvatarBase64 = e.target.result;
@@ -1117,7 +1270,6 @@
         function handleLogoSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
             reader.onload = function(e) {
                 selectedLogoBase64 = e.target.result;
@@ -1133,7 +1285,6 @@
                 alert('يرجى اختيار صورة للوجو أولاً!');
                 return;
             }
-
             try {
                 await db.collection('site_settings').doc('general').set({
                     logoURL: selectedLogoBase64,
@@ -1162,12 +1313,12 @@
                     applySiteLogo(doc.data().logoURL);
                 }
             } catch (e) {
-                console.log('Site settings load error', e);
+                console.log('Site settings error', e);
             }
         }
 
         // ----------------------------------------------------
-        // 5. Navigation & Admin Designation Logic
+        // 5. Navigation & Session Timeout Management (1 Hour)
         // ----------------------------------------------------
         function switchTab(tabId) {
             document.querySelectorAll('.tab-page').forEach(el => el.classList.remove('active'));
@@ -1177,6 +1328,31 @@
             if (target) target.classList.add('active');
 
             if (tabId === 'admin') loadAdminData();
+        }
+
+        function check1HourSessionTimer() {
+            let sessionStart = localStorage.getItem('user_session_start');
+            if (!sessionStart) {
+                sessionStart = Date.now();
+                localStorage.setItem('user_session_start', sessionStart);
+            }
+
+            const elapsed = Date.now() - parseInt(sessionStart);
+
+            if (elapsed >= SESSION_DURATION_MS) {
+                alert('انتهت مدة الصلاحية المسموح بها للجلسة (ساعة واحدة). تم تسجيل الخروج تلقائياً لأسباب أمنية.');
+                logout();
+                return false;
+            }
+
+            const remaining = SESSION_DURATION_MS - elapsed;
+            if (sessionTimerRef) clearTimeout(sessionTimerRef);
+            sessionTimerRef = setTimeout(() => {
+                alert('انتهت مدة الجلسة (ساعة واحدة). تم تسجيل الخروج تلقائياً.');
+                logout();
+            }, remaining);
+
+            return true;
         }
 
         async function loadAdminData() {
@@ -1232,12 +1408,10 @@
         async function promoteAdminByEmail(event) {
             event.preventDefault();
             const email = document.getElementById('promoteEmailInput').value.trim().toLowerCase();
-
             if (!email) return;
 
             try {
                 const snapshot = await db.collection('users').where('email', '==', email).get();
-
                 if (snapshot.empty) {
                     alert('لم يتم العثور على حساب بهذا البريد في قاعدة البيانات. اطلب من المستخدم إنشاء حساب أولاً!');
                     return;
@@ -1289,6 +1463,7 @@
                 } else {
                     await auth.signInWithEmailAndPassword(email, password);
                 }
+                localStorage.setItem('user_session_start', Date.now());
                 closeModal('authModal');
             } catch (err) {
                 alert('خطأ: ' + err.message);
@@ -1299,6 +1474,7 @@
             const provider = new firebase.auth.GoogleAuthProvider();
             try {
                 await auth.signInWithPopup(provider);
+                localStorage.setItem('user_session_start', Date.now());
                 closeModal('authModal');
             } catch (err) {
                 alert('خطأ Google: ' + err.message);
@@ -1325,7 +1501,6 @@
 
             try {
                 await db.collection('users').doc(currentUser.uid).set(updateData, { merge: true });
-
                 alert('تم حفظ البيانات بنجاح!');
                 closeModal('profileModal');
                 checkUserProfile(currentUser);
@@ -1373,25 +1548,43 @@
             currentUser = user;
             const guest = document.getElementById('guest-actions');
             const uActions = document.getElementById('user-actions');
+            const spinner = document.getElementById('auth-loading-spinner');
+
+            spinner.style.display = 'none';
 
             if (user) {
-                guest.style.display = 'none';
-                uActions.style.display = 'flex';
-                checkUserProfile(user);
+                if (check1HourSessionTimer()) {
+                    guest.style.display = 'none';
+                    uActions.style.display = 'flex';
+                    checkUserProfile(user);
+                }
             } else {
                 isProfileComplete = false;
                 guest.style.display = 'flex';
                 uActions.style.display = 'none';
                 document.getElementById('admin-nav-btn').style.display = 'none';
+                localStorage.removeItem('user_session_start');
+                if (sessionTimerRef) clearTimeout(sessionTimerRef);
             }
         });
 
         function logout() {
+            localStorage.removeItem('user_session_start');
+            if (sessionTimerRef) clearTimeout(sessionTimerRef);
             auth.signOut();
         }
 
+        // حماية لوحة التحكم واختصارات التنزيل/الطباعة
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
+                e.preventDefault();
+                alert('تنبيه: التحميل أو الطباعة غير متاح حمايةً لحقوق المحتوى الهندسي.');
+            }
+        });
+
         // Initialize App
         syncBooksLive();
+        syncCoursesLive();
         loadSiteSettings();
     </script>
 </body>
