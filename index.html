@@ -1125,7 +1125,7 @@
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('profileModal')">✕</button>
             <h3 style="margin-bottom: 10px; text-align: center; color: var(--primary-cyan); font-size:24px;"><i class="fa-solid fa-user-gear"></i> إكمال وتحديث الملف الشخصي</h3>
-            <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 24px;">البيانات مطلوبة لتفعيل صلاحية القراءة ومشاهدة الكورسات</p>
+            <p style="font-size: 14px; color: var(--text-muted); text-align: center; margin-bottom: 24px;">يمكنك تحديث بياناتك الشخصية هنا</p>
 
             <form onsubmit="saveProfile(event)">
                 <div class="image-preview-container">
@@ -1183,7 +1183,6 @@
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
-        let isProfileComplete = false;
         let authMode = 'login';
         let booksList = [];
         let coursesList = [];
@@ -1363,7 +1362,8 @@
         // ----------------------------------------------------
         function uploadFileWithProgress(file, folderPath, onProgress) {
             return new Promise((resolve, reject) => {
-                const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+                const ext = file.name.split('.').pop() || 'file';
+                const cleanFileName = `${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
                 const storageRef = storage.ref().child(`${folderPath}/${cleanFileName}`);
                 const uploadTask = storageRef.put(file);
 
@@ -1402,7 +1402,7 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الملفات...`;
 
             try {
-                // رفع PDF كبير إلى Firebase Storage
+                // رفع PDF إلى Firebase Storage
                 if (pdfFileInput.files && pdfFileInput.files[0]) {
                     const pdfFile = pdfFileInput.files[0];
                     finalPdfUrl = await uploadFileWithProgress(pdfFile, 'books_pdf', (percent) => {
@@ -1517,36 +1517,48 @@
             renderBooks(filtered);
         }
 
+        // تحسين وتصحيح نظام القراءة للـ PDF والروابط
         function accessBook(url, title = 'عرض الكتاب') {
             if (!currentUser) {
-                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لخدمات القراءة!');
-                openAuthModal('register');
-            } else if (!isProfileComplete) {
-                alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل صلاحية القراءة!');
-                openProfileModal();
-            } else {
-                let displayUrl = url;
-                if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
-                    displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
-                }
-                document.getElementById('pdfViewerTitle').innerText = title;
-                document.getElementById('pdfFrame').src = displayUrl;
-                document.getElementById('pdfViewerModal').style.display = 'flex';
+                showToast('عفواً، يجب عليك تسجيل الدخول أولاً للقراءة');
+                openAuthModal('login');
+                return;
             }
+
+            let displayUrl = url;
+
+            // إذا كان الرابط من Google Drive
+            if (url.includes('drive.google.com')) {
+                if (url.includes('/file/d/')) {
+                    const fileId = url.split('/file/d/')[1].split('/')[0];
+                    displayUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+                } else {
+                    displayUrl = url;
+                }
+            } 
+            // إذا كان الرابط مباشر من Firebase Storage أو PDF مباشر
+            else if (url.includes('firebasestorage.googleapis.com') || url.toLowerCase().includes('.pdf') || url.startsWith('data:application/pdf')) {
+                displayUrl = url;
+            } 
+            // لأي روابط خارجية أخرى مثل GitHub
+            else if (url.includes('github.com') || url.includes('raw.githubusercontent.com')) {
+                displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
+            }
+
+            document.getElementById('pdfViewerTitle').innerText = title;
+            document.getElementById('pdfFrame').src = displayUrl;
+            document.getElementById('pdfViewerModal').style.display = 'flex';
         }
 
         function accessCourse(url, title = 'مشاهدة الكورس') {
             if (!currentUser) {
-                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول للكورسات!');
-                openAuthModal('register');
-            } else if (!isProfileComplete) {
-                alert('يرجى إكمال بيانات الملف الشخصي أولاً!');
-                openProfileModal();
-            } else {
-                document.getElementById('pdfViewerTitle').innerText = title;
-                document.getElementById('pdfFrame').src = url;
-                document.getElementById('pdfViewerModal').style.display = 'flex';
+                showToast('عفواً، يجب عليك تسجيل الدخول أولاً لمشاهدة الكورسات');
+                openAuthModal('login');
+                return;
             }
+            document.getElementById('pdfViewerTitle').innerText = title;
+            document.getElementById('pdfFrame').src = url;
+            document.getElementById('pdfViewerModal').style.display = 'flex';
         }
 
         // ----------------------------------------------------
@@ -1818,7 +1830,6 @@
                     if (data.isAdmin === true || data.role === 'admin') isUserAdmin = true;
 
                     if (data.fullName) {
-                        isProfileComplete = true;
                         document.getElementById('user-display-name').innerText = data.fullName;
                         if (data.photoURL) {
                             document.getElementById('user-avatar-img').src = data.photoURL;
@@ -1840,7 +1851,6 @@
                 document.getElementById('user-display-name').innerText = user.displayName || userEmail.split('@')[0];
             }
 
-            // إظهار زر الأدمن دائماً إذا انطبقت الشروط
             const adminBtn = document.getElementById('admin-nav-btn');
             if (adminBtn) adminBtn.style.display = isUserAdmin ? 'inline-flex' : 'none';
         }
@@ -1851,16 +1861,22 @@
 
             const guestActions = document.getElementById('guest-actions');
             const userActions = document.getElementById('user-actions');
+            const adminBtn = document.getElementById('admin-nav-btn');
 
             if (user) {
                 guestActions.style.display = 'none';
                 userActions.style.display = 'flex';
+
+                const userEmail = (user.email || '').toLowerCase();
+                if (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) {
+                    if (adminBtn) adminBtn.style.display = 'inline-flex';
+                }
+
                 await checkUserProfile(user);
             } else {
-                isProfileComplete = false;
                 guestActions.style.display = 'flex';
                 userActions.style.display = 'none';
-                document.getElementById('admin-nav-btn').style.display = 'none';
+                if (adminBtn) adminBtn.style.display = 'none';
             }
         });
 
