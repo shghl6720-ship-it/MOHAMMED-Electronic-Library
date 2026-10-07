@@ -1163,7 +1163,6 @@
         // 1. Firebase Config & Session Setup
         // ----------------------------------------------------
         const SUPER_ADMIN_EMAIL = "mohameda2hussiena2@gmail.com";
-        const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 Hour limit
 
         const firebaseConfig = {
             apiKey: "AIzaSyCk1-vMffY8YrFLkgCcISjFkzXjS-N5ikM",
@@ -1180,7 +1179,7 @@
         const db = firebase.firestore();
         const storage = firebase.storage();
 
-        // تفعيل استمرارية الجلسة لمنع تسجيل الخروج عند الـ Refresh
+        // تثبيت استمرارية الجلسة لمنع تسجيل الخروج عند الـ Refresh
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
@@ -1191,7 +1190,6 @@
         let favoritesList = JSON.parse(localStorage.getItem('user_favorites') || '[]');
         let selectedAvatarBase64 = "";
         let selectedLogoBase64 = "";
-        let sessionTimerRef = null;
 
         const initialBooksSeed = [
             { title: 'الأفومتر الديجيتال Digital Multimeter (DMM)', desc: 'دليل عملي شامل لاستخدام وشرح قياسات الأفومتر الديجيتال وفحص العناصر الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
@@ -1361,7 +1359,7 @@
         }
 
         // ----------------------------------------------------
-        // 3. Firebase Storage Upload Helper (للأحجام الكبيرة)
+        // 3. Firebase Storage Upload Helper
         // ----------------------------------------------------
         function uploadFileWithProgress(file, folderPath, onProgress) {
             return new Promise((resolve, reject) => {
@@ -1404,7 +1402,7 @@
             btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الملفات...`;
 
             try {
-                // 1. رفع ملف الـ PDF إلى Firebase Storage بحجم محتويات غير محدود
+                // رفع PDF كبير إلى Firebase Storage
                 if (pdfFileInput.files && pdfFileInput.files[0]) {
                     const pdfFile = pdfFileInput.files[0];
                     finalPdfUrl = await uploadFileWithProgress(pdfFile, 'books_pdf', (percent) => {
@@ -1412,7 +1410,7 @@
                     });
                 }
 
-                // 2. رفع صورة الغلاف إلى Firebase Storage إذا تم اختيارها
+                // رفع الغلاف
                 if (coverFileInput.files && coverFileInput.files[0]) {
                     const coverFile = coverFileInput.files[0];
                     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الغلاف...`;
@@ -1426,8 +1424,7 @@
                     return;
                 }
 
-                // 3. حفظ بيانات الكتاب في Firestore
-                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ بيانات الكتاب...`;
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ البيانات...`;
                 await db.collection('books').add({
                     title: title,
                     desc: desc,
@@ -1436,11 +1433,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showToast('تم رفع ونشر الكتاب بنجاح في المنصة! 🎉');
+                showToast('تم رفع ونشر الكتاب بنجاح! 🎉');
                 event.target.reset();
             } catch (err) {
                 console.error(err);
-                alert('خطأ أثناء الرفع: ' + err.message + '\nتأكد من تفعيل قواعد Firebase Storage Rules!');
+                alert('خطأ أثناء الرفع: ' + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> نشر وإضافة الكتاب الآن`;
@@ -1690,30 +1687,6 @@
             if (tabId === 'admin') loadAdminData();
         }
 
-        function check1HourSessionTimer() {
-            let sessionStart = localStorage.getItem('user_session_start');
-            if (!sessionStart) {
-                sessionStart = Date.now();
-                localStorage.setItem('user_session_start', sessionStart);
-            }
-
-            const elapsed = Date.now() - parseInt(sessionStart);
-            if (elapsed >= SESSION_DURATION_MS) {
-                alert('انتهت جلسة الدخول (ساعة واحدة). تم تسجيل الخروج لتأمين الحساب.');
-                logout();
-                return false;
-            }
-
-            const remaining = SESSION_DURATION_MS - elapsed;
-            if (sessionTimerRef) clearTimeout(sessionTimerRef);
-            sessionTimerRef = setTimeout(() => {
-                alert('انتهت جلسة الدخول (ساعة واحدة). تم تسجيل الخروج.');
-                logout();
-            }, remaining);
-
-            return true;
-        }
-
         async function loadAdminData() {
             if (!currentUser) return;
 
@@ -1725,12 +1698,13 @@
             snapshot.forEach(doc => {
                 const u = doc.data();
                 const uid = doc.id;
-                const isAdmin = (u.email === SUPER_ADMIN_EMAIL) || (u.isAdmin === true) || (u.role === 'admin');
+                const userEmail = (u.email || '').toLowerCase();
+                const isAdmin = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) || (u.isAdmin === true) || (u.role === 'admin');
 
                 let roleBadge = isAdmin ? '<span class="badge-admin"><i class="fa-solid fa-shield-halved"></i> أدمن</span>' : '<span class="badge-user">مشترك</span>';
                 let actionBtn = '';
 
-                if (u.email === SUPER_ADMIN_EMAIL) {
+                if (userEmail === SUPER_ADMIN_EMAIL.toLowerCase()) {
                     actionBtn = '<span style="font-size:13px; color:var(--text-muted);">المالك</span>';
                 } else if (isAdmin) {
                     actionBtn = `<button class="btn btn-danger" style="padding:6px 12px; font-size:13px;" onclick="toggleUserAdmin('${uid}', false)">إلغاء الأدمن</button>`;
@@ -1796,7 +1770,6 @@
             try {
                 if (authMode === 'register') await auth.createUserWithEmailAndPassword(email, password);
                 else await auth.signInWithEmailAndPassword(email, password);
-                localStorage.setItem('user_session_start', Date.now());
                 closeModal('authModal');
             } catch (err) {
                 alert('خطأ: ' + err.message);
@@ -1807,7 +1780,6 @@
             try {
                 const provider = new firebase.auth.GoogleAuthProvider();
                 await auth.signInWithPopup(provider);
-                localStorage.setItem('user_session_start', Date.now());
                 closeModal('authModal');
             } catch (err) {
                 alert('خطأ Google: ' + err.message);
@@ -1836,53 +1808,63 @@
         async function checkUserProfile(user) {
             if (!user) return;
 
-            const doc = await db.collection('users').doc(user.uid).get();
-            const data = doc.exists ? doc.data() : {};
-            const isUserAdmin = (user.email === SUPER_ADMIN_EMAIL) || (data.isAdmin === true) || (data.role === 'admin');
+            const userEmail = (user.email || '').toLowerCase();
+            let isUserAdmin = (userEmail === SUPER_ADMIN_EMAIL.toLowerCase());
 
-            if (doc.exists && data.fullName) {
-                isProfileComplete = true;
-                document.getElementById('user-display-name').innerText = data.fullName;
-                if (data.photoURL) {
-                    document.getElementById('user-avatar-img').src = data.photoURL;
-                    document.getElementById('user-avatar-img').style.display = 'block';
-                    document.getElementById('avatar-preview-img').src = data.photoURL;
-                    document.getElementById('avatar-preview-img').style.display = 'block';
-                    document.getElementById('avatar-icon-placeholder').style.display = 'none';
+            try {
+                const doc = await db.collection('users').doc(user.uid).get();
+                if (doc.exists) {
+                    const data = doc.data();
+                    if (data.isAdmin === true || data.role === 'admin') isUserAdmin = true;
+
+                    if (data.fullName) {
+                        isProfileComplete = true;
+                        document.getElementById('user-display-name').innerText = data.fullName;
+                        if (data.photoURL) {
+                            document.getElementById('user-avatar-img').src = data.photoURL;
+                            document.getElementById('user-avatar-img').style.display = 'block';
+                            document.getElementById('avatar-preview-img').src = data.photoURL;
+                            document.getElementById('avatar-preview-img').style.display = 'block';
+                            document.getElementById('avatar-icon-placeholder').style.display = 'none';
+                        }
+                        document.getElementById('profileFullName').value = data.fullName || '';
+                        document.getElementById('profileJob').value = data.jobTitle || '';
+                    } else {
+                        document.getElementById('user-display-name').innerText = user.displayName || userEmail.split('@')[0];
+                    }
+                } else {
+                    document.getElementById('user-display-name').innerText = user.displayName || userEmail.split('@')[0];
                 }
-                document.getElementById('profileFullName').value = data.fullName || '';
-                document.getElementById('profileJob').value = data.jobTitle || '';
-            } else {
-                isProfileComplete = false;
-                openProfileModal();
+            } catch (err) {
+                console.log(err);
+                document.getElementById('user-display-name').innerText = user.displayName || userEmail.split('@')[0];
             }
 
-            document.getElementById('admin-nav-btn').style.display = isUserAdmin ? 'inline-flex' : 'none';
+            // إظهار زر الأدمن دائماً إذا انطبقت الشروط
+            const adminBtn = document.getElementById('admin-nav-btn');
+            if (adminBtn) adminBtn.style.display = isUserAdmin ? 'inline-flex' : 'none';
         }
 
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged(async (user) => {
             currentUser = user;
             document.getElementById('auth-loading-spinner').style.display = 'none';
 
+            const guestActions = document.getElementById('guest-actions');
+            const userActions = document.getElementById('user-actions');
+
             if (user) {
-                if (check1HourSessionTimer()) {
-                    document.getElementById('guest-actions').style.display = 'none';
-                    document.getElementById('user-actions').style.display = 'flex';
-                    checkUserProfile(user);
-                }
+                guestActions.style.display = 'none';
+                userActions.style.display = 'flex';
+                await checkUserProfile(user);
             } else {
                 isProfileComplete = false;
-                document.getElementById('guest-actions').style.display = 'flex';
-                document.getElementById('user-actions').style.display = 'none';
+                guestActions.style.display = 'flex';
+                userActions.style.display = 'none';
                 document.getElementById('admin-nav-btn').style.display = 'none';
-                localStorage.removeItem('user_session_start');
-                if (sessionTimerRef) clearTimeout(sessionTimerRef);
             }
         });
 
         function logout() {
-            localStorage.removeItem('user_session_start');
-            if (sessionTimerRef) clearTimeout(sessionTimerRef);
             auth.signOut();
         }
 
