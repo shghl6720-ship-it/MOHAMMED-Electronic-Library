@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -76,6 +77,36 @@
             padding: 0 24px;
             position: relative;
             z-index: 1;
+        }
+
+        /* Toast Notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-msg {
+            background: rgba(13, 20, 34, 0.95);
+            border: 1px solid var(--primary-cyan);
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-glow);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
 
         /* Header Navigation */
@@ -153,6 +184,7 @@
             padding: 5px;
             border-radius: var(--radius-md);
             border: 1px solid var(--border-color);
+            flex-wrap: wrap;
         }
 
         .nav-item {
@@ -324,12 +356,36 @@
             flex-direction: column;
             justify-content: space-between;
             transition: all 0.3s;
+            position: relative;
         }
 
         .book-card:hover {
             border-color: var(--primary-cyan);
             transform: translateY(-4px);
             box-shadow: var(--shadow-glow);
+        }
+
+        .fav-btn {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(7, 11, 20, 0.85);
+            border: 1px solid var(--border-color);
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4757;
+            cursor: pointer;
+            z-index: 5;
+            font-size: 15px;
+            transition: transform 0.2s;
+        }
+
+        .fav-btn:hover {
+            transform: scale(1.15);
         }
 
         .book-cover-box {
@@ -411,6 +467,57 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
+        }
+
+        /* Calculators Styling */
+        .calc-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 25px;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .calc-result {
+            background: rgba(0, 191, 255, 0.08);
+            border: 1px solid var(--primary-cyan);
+            padding: 15px;
+            border-radius: var(--radius-md);
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--primary-cyan);
+            font-weight: bold;
+        }
+
+        /* Q&A Section */
+        .qa-box {
+            margin-top: 20px;
+            background: rgba(7, 11, 20, 0.9);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 16px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .qa-item {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 10px 0;
+            font-size: 13px;
+        }
+
+        .qa-author {
+            color: var(--primary-cyan);
+            font-weight: 700;
+            margin-bottom: 4px;
+            font-size: 12px;
         }
 
         /* AI Assistant Drawer */
@@ -642,6 +749,9 @@
 
     <div class="pcb-bg-overlay"></div>
 
+    <!-- Toast Notifications Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
     <!-- Header Navigation -->
     <header>
         <div class="container nav-wrapper">
@@ -659,7 +769,9 @@
             <nav class="nav-links">
                 <button class="nav-item active" onclick="switchTab('home')"><i class="fa-solid fa-house"></i> الرئيسية</button>
                 <button class="nav-item" onclick="switchTab('books')"><i class="fa-solid fa-book"></i> جميع الكتب (<span id="books-count-badge">0</span>)</button>
-                <button class="nav-item" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> الكورسات والدورات (<span id="courses-count-badge">0</span>)</button>
+                <button class="nav-item" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> الكورسات (<span id="courses-count-badge">0</span>)</button>
+                <button class="nav-item" onclick="switchTab('calculators')"><i class="fa-solid fa-calculator"></i> الحاسبات الهندسية</button>
+                <button class="nav-item" onclick="switchTab('saved')"><i class="fa-solid fa-heart" style="color: #ff4757;"></i> المفضلة (<span id="favs-count-badge">0</span>)</button>
                 <button class="nav-item" id="admin-nav-btn" style="display: none; color: var(--warning);" onclick="switchTab('admin')"><i class="fa-solid fa-sliders"></i> لوحة التحكم</button>
             </nav>
 
@@ -690,10 +802,11 @@
             <section class="hero-section">
                 <div>
                     <h1 class="hero-title">MOHAMMED Electronic Library</h1>
-                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية والكورسات المتقدمة. تصفح وقسّم واقرأ الكتب على المنصة مباشرة وبأمان كامل.</p>
-                    <div style="display:flex; gap:12px;">
+                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية والكورسات المتقدمة والأدوات الحاسبة. تصفح واقرأ واكتسب الخبرة مباشرة.</p>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
                         <button class="btn btn-cyan" onclick="switchTab('books')"><i class="fa-solid fa-book-open"></i> استعرض الكتب</button>
                         <button class="btn btn-purple" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> قسم الكورسات</button>
+                        <button class="btn btn-outline" onclick="switchTab('calculators')"><i class="fa-solid fa-calculator"></i> الحاسبات الهندسية</button>
                     </div>
                 </div>
             </section>
@@ -724,14 +837,112 @@
             <div class="books-grid" id="courses-container"></div>
         </div>
 
+        <!-- Calculators Tab -->
+        <div id="tab-calculators" class="tab-page">
+            <h2 style="margin: 30px 0 20px; color: var(--primary-cyan);"><i class="fa-solid fa-calculator"></i> الحاسبات والأدوات الهندسية التفاعلية</h2>
+            
+            <!-- 1. Ohm's Law Calculator -->
+            <div class="calc-card">
+                <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-bolt" style="color:var(--warning);"></i> 1. حاسبة قانون أوم (Ohm's Law)</h3>
+                <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">أدخل قيمتين لحساب باقي المتغيرات الكهربائية تلقائياً:</p>
+                <div class="calc-grid">
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">الجهد (V) - فولت</label>
+                        <input type="number" id="ohm-v" class="form-control" placeholder="0" oninput="calcOhm()">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">التيار (I) - أمبير</label>
+                        <input type="number" id="ohm-i" class="form-control" placeholder="0" oninput="calcOhm()">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">المقاومة (R) - أوم</label>
+                        <input type="number" id="ohm-r" class="form-control" placeholder="0" oninput="calcOhm()">
+                    </div>
+                </div>
+                <div class="calc-result" id="ohm-result">القدرة الكهربائية (Power): 0 W</div>
+            </div>
+
+            <!-- 2. Resistor Color Code Calculator -->
+            <div class="calc-card">
+                <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-palette" style="color:var(--primary-cyan);"></i> 2. حاسبة ألوان المقاومات (4-Band Resistor)</h3>
+                <div class="calc-grid">
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">النطاق 1 (الرقم الأول)</label>
+                        <select id="res-b1" class="form-control" onchange="calcResistor()">
+                            <option value="1">بني (1)</option>
+                            <option value="2">أحمر (2)</option>
+                            <option value="3">برتقالي (3)</option>
+                            <option value="4">أصفر (4)</option>
+                            <option value="5">أخضر (5)</option>
+                            <option value="6">أزرق (6)</option>
+                            <option value="7">بنفسجي (7)</option>
+                            <option value="8">رمادي (8)</option>
+                            <option value="9">أبيض (9)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">النطاق 2 (الرقم الثاني)</label>
+                        <select id="res-b2" class="form-control" onchange="calcResistor()">
+                            <option value="0">أسود (0)</option>
+                            <option value="1">بني (1)</option>
+                            <option value="2">أحمر (2)</option>
+                            <option value="3">برتقالي (3)</option>
+                            <option value="4">أصفر (4)</option>
+                            <option value="5">أخضر (5)</option>
+                            <option value="6">أزرق (6)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">المعامل (Multiplier)</label>
+                        <select id="res-mult" class="form-control" onchange="calcResistor()">
+                            <option value="1">x1 Ω</option>
+                            <option value="10">x10 Ω</option>
+                            <option value="100">x100 Ω</option>
+                            <option value="1000">x1 kΩ</option>
+                            <option value="10000">x10 kΩ</option>
+                            <option value="100000">x100 kΩ</option>
+                            <option value="1000000">x1 MΩ</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="calc-result" id="resistor-result">قيمة المقاومة: 10 Ω</div>
+            </div>
+
+            <!-- 3. 555 Timer Astable Calculator -->
+            <div class="calc-card">
+                <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-clock" style="color:var(--secondary-purple);"></i> 3. حاسبة دوائر التذبذب 555 Timer Astable</h3>
+                <div class="calc-grid">
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">R1 (kΩ)</label>
+                        <input type="number" id="t555-r1" class="form-control" value="10" oninput="calc555()">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">R2 (kΩ)</label>
+                        <input type="number" id="t555-r2" class="form-control" value="100" oninput="calc555()">
+                    </div>
+                    <div>
+                        <label style="font-size:12px; color:var(--text-muted);">C1 (µF)</label>
+                        <input type="number" id="t555-c" class="form-control" value="10" oninput="calc555()">
+                    </div>
+                </div>
+                <div class="calc-result" id="t555-result">التردد: 0 Hz | Duty Cycle: 0%</div>
+            </div>
+        </div>
+
+        <!-- Saved / Favorites Tab -->
+        <div id="tab-saved" class="tab-page">
+            <h2 style="margin: 30px 0 20px; color: #ff4757;"><i class="fa-solid fa-heart"></i> قائمة المحتوى المفضلة والمحفوظة</h2>
+            <div class="books-grid" id="saved-container"></div>
+        </div>
+
         <!-- Admin Dashboard Tab -->
         <div id="tab-admin" class="tab-page">
             <div class="admin-box">
                 <h2 style="margin-bottom: 20px; color: var(--warning);"><i class="fa-solid fa-sliders"></i> لوحة تحكم وإدارة المنصة</h2>
                 
-                <!-- إضافة كتاب جديد -->
+                <!-- إضافة كتاب جديد مباشرة بالرفع -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
-                    <h3 style="font-size: 16px; color: var(--primary-cyan); margin-bottom: 16px;"><i class="fa-solid fa-plus-circle"></i> إضافة كتاب أو مستند جديد للمكتبة</h3>
+                    <h3 style="font-size: 16px; color: var(--primary-cyan); margin-bottom: 16px;"><i class="fa-solid fa-file-arrow-up"></i> رفع وإضافة كتاب جديد للمكتبة مباشرة من جهازك</h3>
                     <form onsubmit="addBookFromAdmin(event)">
                         <div class="form-group">
                             <label>عنوان الكتاب *</label>
@@ -741,21 +952,24 @@
                             <label>وصف كتاب مختصر</label>
                             <textarea id="newBookDesc" class="form-control" rows="2" placeholder="وصف محتوى الكتاب وما يناقشه..."></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>رابط الكتاب (رابط GitHub PDF أو Google Drive) *</label>
-                            <input type="url" id="newBookUrl" class="form-control" placeholder="https://raw.githubusercontent.com/.../book.pdf" required>
+                        <div class="form-group" style="background: rgba(0, 191, 255, 0.05); padding: 12px; border-radius: 8px; border: 1px dashed var(--primary-cyan);">
+                            <label><i class="fa-solid fa-file-pdf"></i> اختر ملف الكتاب (PDF) من جهازك مباشرة *</label>
+                            <input type="file" id="newBookPdfFile" accept="application/pdf" class="form-control" style="background: transparent;">
+                            <span style="font-size: 11px; color: var(--text-muted); margin-top: 4px; display: block;">أو أدخل رابطاً بديداً:</span>
+                            <input type="url" id="newBookUrl" class="form-control" placeholder="https://raw.githubusercontent.com/.../book.pdf" style="margin-top:6px;">
                         </div>
-                        <div class="form-group">
-                            <label>رابط صورة الغلاف (اختياري)</label>
-                            <input type="url" id="newBookCover" class="form-control" placeholder="https://images.unsplash.com/...">
+                        <div class="form-group" style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px;">
+                            <label><i class="fa-solid fa-image"></i> اختر صورة غلاف الكتاب من جهازك</label>
+                            <input type="file" id="newBookCoverFile" accept="image/*" class="form-control">
+                            <input type="url" id="newBookCover" class="form-control" placeholder="https://images.unsplash.com/..." style="margin-top:6px;">
                         </div>
-                        <button type="submit" class="btn btn-cyan"><i class="fa-solid fa-floppy-disk"></i> نشر وإضافة الكتاب للمكتبة</button>
+                        <button type="submit" class="btn btn-cyan" id="btn-upload-book"><i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكتاب للمكتبة</button>
                     </form>
                 </div>
 
-                <!-- إضافة كورس جديد -->
+                <!-- إضافة كورس جديد بالرفع المباشر -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
-                    <h3 style="font-size: 16px; color: var(--secondary-purple); margin-bottom: 16px;"><i class="fa-solid fa-graduation-cap"></i> إضافة كورس تعليمي جديد</h3>
+                    <h3 style="font-size: 16px; color: var(--secondary-purple); margin-bottom: 16px;"><i class="fa-solid fa-graduation-cap"></i> رفع وإضافة كورس تعليمي جديد</h3>
                     <form onsubmit="addCourseFromAdmin(event)">
                         <div class="form-group">
                             <label>عنوان الكورس / الدورة *</label>
@@ -765,15 +979,17 @@
                             <label>وصف الكورس</label>
                             <textarea id="newCourseDesc" class="form-control" rows="2" placeholder="تفاصيل الدورة وما يتعلمه المهندس..."></textarea>
                         </div>
-                        <div class="form-group">
-                            <label>رابط الدورة / قائمة التشغيل (YouTube أو غيرها) *</label>
-                            <input type="url" id="newCourseUrl" class="form-control" placeholder="https://www.youtube.com/embed/..." required>
+                        <div class="form-group" style="background: rgba(124, 58, 237, 0.05); padding: 12px; border-radius: 8px; border: 1px dashed var(--secondary-purple);">
+                            <label><i class="fa-solid fa-video"></i> اختر فيديو الكورس من جهازك أو أدخل الرابط *</label>
+                            <input type="file" id="newCourseVideoFile" accept="video/*" class="form-control" style="background: transparent;">
+                            <input type="url" id="newCourseUrl" class="form-control" placeholder="https://www.youtube.com/embed/..." style="margin-top:6px;">
                         </div>
                         <div class="form-group">
-                            <label>رابط صورة الكورس (اختياري)</label>
-                            <input type="url" id="newCourseCover" class="form-control" placeholder="https://images.unsplash.com/...">
+                            <label><i class="fa-solid fa-image"></i> صورة الكورس</label>
+                            <input type="file" id="newCourseCoverFile" accept="image/*" class="form-control">
+                            <input type="url" id="newCourseCover" class="form-control" placeholder="https://images.unsplash.com/..." style="margin-top:6px;">
                         </div>
-                        <button type="submit" class="btn btn-purple"><i class="fa-solid fa-plus-circle"></i> نشر وإضافة الكورس</button>
+                        <button type="submit" class="btn btn-purple" id="btn-upload-course"><i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكورس</button>
                     </form>
                 </div>
 
@@ -876,7 +1092,7 @@
         </div>
     </div>
 
-    <!-- Modal: Internal Protected PDF/Course Viewer (ممنوع التحميل) -->
+    <!-- Modal: Internal Protected PDF/Course Viewer (ممنوع التحميل مع Q&A) -->
     <div class="modal-overlay" id="pdfViewerModal">
         <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px; position:relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
@@ -884,10 +1100,19 @@
                 <button class="close-modal" onclick="closeModal('pdfViewerModal')" style="position: static; font-size: 16px; background: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 4px 12px; border-radius: 6px; border: 1px solid var(--danger);">✕ إغلاق النافذة</button>
             </div>
             
-            <div style="flex-grow: 1; width: 100%; height: 100%; overflow: hidden; border-radius: 8px; background: #1a1a1a; position: relative;">
-                <!-- حماية الشريط العلوي لمنع الضغط على أيقونة التحميل -->
+            <div style="flex-grow: 1; width: 100%; height: 60%; overflow: hidden; border-radius: 8px; background: #1a1a1a; position: relative;">
                 <div class="pdf-security-guard"></div>
                 <iframe id="pdfFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+            </div>
+
+            <!-- Q&A Section تحت الكتاب/الكورس -->
+            <div style="margin-top: 15px; display: flex; flex-direction: column; height: 35%;">
+                <h4 style="font-size: 13px; color: var(--primary-cyan); margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> أسئلة واستفسارات المشتركين حول هذا المحتوى</h4>
+                <div class="qa-box" id="qaList"></div>
+                <div style="display: flex; gap: 8px; margin-top: 8px;">
+                    <input type="text" id="qaInput" class="form-control" placeholder="اكتب استفسارك أو سؤالك الهندي هنا..." onkeypress="if(event.key==='Enter') submitQA()">
+                    <button class="btn btn-cyan" onclick="submitQA()"><i class="fa-solid fa-paper-plane"></i> إرسال</button>
+                </div>
             </div>
         </div>
     </div>
@@ -959,7 +1184,7 @@
         // 1. Firebase Config & Initial Data
         // ----------------------------------------------------
         const SUPER_ADMIN_EMAIL = "mohameda2hussiena2@gmail.com";
-        const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 Hour limit
+        const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 Hour session limit
 
         const firebaseConfig = {
             apiKey: "AIzaSyCk1-vMffY8YrFLkgCcISjFkzXjS-N5ikM",
@@ -974,8 +1199,9 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        let storage = null;
+        try { storage = firebase.storage(); } catch(e) { console.log('Storage init note', e); }
 
-        // تفعيل حفظ الجلسة محلياً لمنع تسجيل الخروج عند الـ Refresh
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
 
         let currentUser = null;
@@ -983,44 +1209,66 @@
         let authMode = 'login';
         let booksList = [];
         let coursesList = [];
+        let savedFavorites = JSON.parse(localStorage.getItem('user_favs') || '[]');
+        let currentViewingItemId = null;
         let selectedAvatarBase64 = "";
         let selectedLogoBase64 = "";
         let sessionTimerRef = null;
+        let isFirstLoad = true;
 
         const initialBooksSeed = [
             { title: 'الأفومتر الديجيتال Digital Multimeter (DMM)', desc: 'دليل عملي شامل لاستخدام وشرح قياسات الأفومتر الديجيتال وفحص العناصر الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'الدليل الشامل لأهم المستشعرات والوحدات الإلكترونية المستخدمة في مشاريع Arduino', desc: 'مرجع كامل لشرح أشهر مستشعرات الحساسات وتوصيلها مع لوحات أردوينو.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'كتاب خرافي عن أنواع المكونات الإلكترونية ووظائفها', desc: 'شرح مفصل لكافة العناصر الإلكترونية من المقاومات والمكثفات والترانزستورات.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' }
+            { title: 'الدليل الشامل لأهم المستشعرات والوحدات الإلكترونية المستخدمة في مشاريع Arduino', desc: 'مرجع كامل لشرح أشهر مستشعرات الحساسات وتوصيلها مع لوحات أردوينو.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' }
         ];
 
         const initialCoursesSeed = [
-            { title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' },
-            { title: 'دورة تصميم المحولات وإمدادات الطاقة Switched Mode Power Supply (SMPS)', desc: 'شرح احترافي للتحكم في دوائر Flyback & Half Bridge والتغذية العكسية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f31' }
+            { title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' }
         ];
 
         // ----------------------------------------------------
-        // 2. Realtime Books & Courses Sync
+        // 2. Notification Helper
+        // ----------------------------------------------------
+        function showToast(title, body) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.innerHTML = `<i class="fa-solid fa-bell" style="color:var(--primary-cyan);"></i> <div><strong>${title}</strong><br><small>${body}</small></div>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 4000);
+
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, { body: body, icon: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=100' });
+            }
+        }
+
+        if ("Notification" in window && Notification.permission !== "granted") {
+            Notification.requestPermission();
+        }
+
+        // ----------------------------------------------------
+        // 3. Realtime Sync & Data Handling
         // ----------------------------------------------------
         function syncBooksLive() {
             db.collection('books').onSnapshot(async (snapshot) => {
                 if (snapshot.empty) {
                     for (const book of initialBooksSeed) {
-                        await db.collection('books').add({
-                            ...book,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        await db.collection('books').add({ ...book, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                     }
                     return;
                 }
 
+                if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
+                    const newBook = snapshot.docChanges().find(c => c.type === 'added').doc.data();
+                    showToast('كتاب جديد متاح الآن! 📚', newBook.title);
+                }
+
                 booksList = [];
-                snapshot.forEach(doc => {
-                    booksList.push({ id: doc.id, ...doc.data() });
-                });
+                snapshot.forEach(doc => booksList.push({ id: doc.id, ...doc.data() }));
 
                 document.getElementById('books-count-badge').innerText = booksList.length;
                 renderBooks(booksList);
                 renderAdminBooksTable(booksList);
+                renderSavedItems();
             });
         }
 
@@ -1028,37 +1276,59 @@
             db.collection('courses').onSnapshot(async (snapshot) => {
                 if (snapshot.empty) {
                     for (const course of initialCoursesSeed) {
-                        await db.collection('courses').add({
-                            ...course,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                        });
+                        await db.collection('courses').add({ ...course, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
                     }
                     return;
                 }
 
+                if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
+                    const newCourse = snapshot.docChanges().find(c => c.type === 'added').doc.data();
+                    showToast('كورس جديد متاح الآن! 🎓', newCourse.title);
+                }
+
                 coursesList = [];
-                snapshot.forEach(doc => {
-                    coursesList.push({ id: doc.id, ...doc.data() });
-                });
+                snapshot.forEach(doc => coursesList.push({ id: doc.id, ...doc.data() }));
 
                 document.getElementById('courses-count-badge').innerText = coursesList.length;
                 renderCourses(coursesList);
                 renderAdminCoursesTable(coursesList);
+                renderSavedItems();
+                isFirstLoad = false;
             });
         }
 
+        function toggleFavorite(itemId, e) {
+            if (e) e.stopPropagation();
+            const index = savedFavorites.indexOf(itemId);
+            if (index > -1) {
+                savedFavorites.splice(index, 1);
+                showToast('المفضلة', 'تمت إزالة العنصر من المفضلة.');
+            } else {
+                savedFavorites.push(itemId);
+                showToast('المفضلة ❤️', 'تم حفظ العنصر في قائمتك المفضلة!');
+            }
+            localStorage.setItem('user_favs', JSON.stringify(savedFavorites));
+            document.getElementById('favs-count-badge').innerText = savedFavorites.length;
+
+            renderBooks(booksList);
+            renderCourses(coursesList);
+            renderSavedItems();
+        }
+
         function renderBooks(list) {
+            const containers = [document.getElementById('home-books-container'), document.getElementById('all-books-container')];
             if (!list || list.length === 0) {
                 const emptyHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:1/-1; padding:30px;">لا توجد كتب مطابقة.</p>';
-                document.getElementById('home-books-container').innerHTML = emptyHTML;
-                document.getElementById('all-books-container').innerHTML = emptyHTML;
+                containers.forEach(c => c.innerHTML = emptyHTML);
                 return;
             }
 
             const html = list.map(b => {
+                const isFav = savedFavorites.includes(b.id);
                 const safeTitle = b.title.replace(/'/g, "\\'");
                 return `
                 <div class="book-card">
+                    <button class="fav-btn" onclick="toggleFavorite('${b.id}', event)"><i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
                     <div class="book-cover-box">
                         <img src="${b.cover || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop'}" class="book-cover-img" alt="${b.title}">
                     </div>
@@ -1067,13 +1337,12 @@
                             <h3 class="book-title">${b.title}</h3>
                             <p class="book-desc">${b.desc || 'مستند مرجعي متقدم في الإلكترونيات والهندسة.'}</p>
                         </div>
-                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}')"><i class="fa-solid fa-book-open"></i> قراءة الكتاب بالمنصة</button>
+                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}', '${b.id}')"><i class="fa-solid fa-book-open"></i> قراءة الكتاب بالمنصة</button>
                     </div>
                 </div>
             `}).join('');
 
-            document.getElementById('home-books-container').innerHTML = html;
-            document.getElementById('all-books-container').innerHTML = html;
+            containers.forEach(c => c.innerHTML = html);
         }
 
         function renderCourses(list) {
@@ -1084,9 +1353,11 @@
             }
 
             container.innerHTML = list.map(c => {
+                const isFav = savedFavorites.includes(c.id);
                 const safeTitle = c.title.replace(/'/g, "\\'");
                 return `
                 <div class="book-card">
+                    <button class="fav-btn" onclick="toggleFavorite('${c.id}', event)"><i class="${isFav ? 'fa-solid' : 'fa-regular'} fa-heart"></i></button>
                     <div class="book-cover-box">
                         <img src="${c.cover || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop'}" class="book-cover-img" alt="${c.title}">
                     </div>
@@ -1095,10 +1366,27 @@
                             <h3 class="book-title">${c.title}</h3>
                             <p class="book-desc">${c.desc || 'كورس تعليمي وتطبيقي شامل في الهندسة.'}</p>
                         </div>
-                        <button class="btn btn-purple" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessCourse('${c.url}', '${safeTitle}')"><i class="fa-solid fa-circle-play"></i> مشاهدة الدورة الآن</button>
+                        <button class="btn btn-purple" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessCourse('${c.url}', '${safeTitle}', '${c.id}')"><i class="fa-solid fa-circle-play"></i> مشاهدة الدورة الآن</button>
                     </div>
                 </div>
             `}).join('');
+        }
+
+        function renderSavedItems() {
+            const container = document.getElementById('saved-container');
+            document.getElementById('favs-count-badge').innerText = savedFavorites.length;
+
+            const savedBooks = booksList.filter(b => savedFavorites.includes(b.id));
+            const savedCourses = coursesList.filter(c => savedFavorites.includes(c.id));
+            const allSaved = [...savedBooks, ...savedCourses];
+
+            if (allSaved.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); text-align:center; grid-column:1/-1; padding:30px;">لم تقم بإضافة أي عناصر للمفضلة بعد.</p>';
+                return;
+            }
+
+            renderBooks(savedBooks);
+            renderCourses(savedCourses);
         }
 
         function renderAdminBooksTable(list) {
@@ -1135,35 +1423,108 @@
             });
         }
 
+        // دالة تحويل وسائط الجهاز وإدارتها (Base64 / Storage)
+        async function handleFileUpload(fileInputId) {
+            const input = document.getElementById(fileInputId);
+            if (!input || !input.files || input.files.length === 0) return null;
+            const file = input.files[0];
+
+            if (storage) {
+                try {
+                    const storageRef = storage.ref(`uploads/${Date.now()}_${file.name}`);
+                    const snapshot = await storageRef.put(file);
+                    return await snapshot.ref.getDownloadURL();
+                } catch (e) {
+                    console.log('Storage upload fallback', e);
+                }
+            }
+
+            return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.readAsDataURL(file);
+            });
+        }
+
         async function addBookFromAdmin(event) {
             event.preventDefault();
-            const title = document.getElementById('newBookTitle').value;
-            const desc = document.getElementById('newBookDesc').value;
-            const url = document.getElementById('newBookUrl').value;
-            let cover = document.getElementById('newBookCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
+            const btn = document.getElementById('btn-upload-book');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الملف...';
+            btn.disabled = true;
 
             try {
-                await db.collection('books').add({ title, desc, url, cover, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                alert('تم نشر وإضافة الكتاب بنجاح للمكتبة!');
+                const title = document.getElementById('newBookTitle').value;
+                const desc = document.getElementById('newBookDesc').value;
+
+                let pdfUrl = await handleFileUpload('newBookPdfFile');
+                if (!pdfUrl) pdfUrl = document.getElementById('newBookUrl').value;
+
+                let coverUrl = await handleFileUpload('newBookCoverFile');
+                if (!coverUrl) coverUrl = document.getElementById('newBookCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
+
+                if (!pdfUrl) {
+                    alert('يرجى اختيار ملف PDF من جهازك أو وضع رابط الكتاب!');
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكتاب للمكتبة';
+                    btn.disabled = false;
+                    return;
+                }
+
+                await db.collection('books').add({
+                    title: title,
+                    desc: desc,
+                    url: pdfUrl,
+                    cover: coverUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('تم رفع ونشر الكتاب للمكتبة بنجاح!');
                 event.target.reset();
             } catch (err) {
-                alert('خطأ أثناء النشر: ' + err.message);
+                alert('خطأ أثناء الرفع: ' + err.message);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكتاب للمكتبة';
+                btn.disabled = false;
             }
         }
 
         async function addCourseFromAdmin(event) {
             event.preventDefault();
-            const title = document.getElementById('newCourseTitle').value;
-            const desc = document.getElementById('newCourseDesc').value;
-            const url = document.getElementById('newCourseUrl').value;
-            let cover = document.getElementById('newCourseCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
+            const btn = document.getElementById('btn-upload-course');
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الرفع...';
+            btn.disabled = true;
 
             try {
-                await db.collection('courses').add({ title, desc, url, cover, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-                alert('تم نشر وإضافة الكورس بنجاح للمنصة!');
+                const title = document.getElementById('newCourseTitle').value;
+                const desc = document.getElementById('newCourseDesc').value;
+
+                let videoUrl = await handleFileUpload('newCourseVideoFile');
+                if (!videoUrl) videoUrl = document.getElementById('newCourseUrl').value;
+
+                let coverUrl = await handleFileUpload('newCourseCoverFile');
+                if (!coverUrl) coverUrl = document.getElementById('newCourseCover').value || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
+
+                if (!videoUrl) {
+                    alert('يرجى اختيار فيديو من جهازك أو إضافة رابط الكورس!');
+                    btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكورس';
+                    btn.disabled = false;
+                    return;
+                }
+
+                await db.collection('courses').add({
+                    title: title,
+                    desc: desc,
+                    url: videoUrl,
+                    cover: coverUrl,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert('تم نشر وإضافة الكورس بنجاح!');
                 event.target.reset();
             } catch (err) {
                 alert('خطأ أثناء إضافة الكورس: ' + err.message);
+            } finally {
+                btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> رفع ونشر الكورس';
+                btn.disabled = false;
             }
         }
 
@@ -1185,8 +1546,8 @@
             renderBooks(filtered);
         }
 
-        // دالة عرض الكتاب داخل المنصة بدون تحميل نهائياً
-        function accessBook(url, title = 'عرض الكتاب') {
+        // دالة فتح القراءة المحمية مع تحميل محادثة Q&A المخصصة للكتاب
+        function accessBook(url, title = 'عرض الكتاب', itemId = null) {
             if (!currentUser) {
                 alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لخدمات القراءة!');
                 openAuthModal('register');
@@ -1195,20 +1556,21 @@
                 openProfileModal();
             } else {
                 let displayUrl = url;
+                currentViewingItemId = itemId;
 
                 if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
-                    // فتح داخل Google Doc Viewer مع تعطيل إمكانية التحميل
                     displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
                 }
 
                 document.getElementById('pdfViewerTitle').innerText = title;
                 document.getElementById('pdfFrame').src = displayUrl;
                 document.getElementById('pdfViewerModal').style.display = 'flex';
+
+                loadQAComments(itemId);
             }
         }
 
-        // دالة عرض الكورس
-        function accessCourse(url, title = 'مشاهدة الكورس') {
+        function accessCourse(url, title = 'مشاهدة الكورس', itemId = null) {
             if (!currentUser) {
                 alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول للكورسات!');
                 openAuthModal('register');
@@ -1216,14 +1578,108 @@
                 alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل الوصول للكورسات!');
                 openProfileModal();
             } else {
+                currentViewingItemId = itemId;
                 document.getElementById('pdfViewerTitle').innerText = title;
                 document.getElementById('pdfFrame').src = url;
                 document.getElementById('pdfViewerModal').style.display = 'flex';
+
+                loadQAComments(itemId);
             }
         }
 
         // ----------------------------------------------------
-        // 3. AI Assistant Drawer
+        // 4. Q&A Comments Logic
+        // ----------------------------------------------------
+        function loadQAComments(itemId) {
+            const list = document.getElementById('qaList');
+            if (!itemId) {
+                list.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">مستند عام.</p>';
+                return;
+            }
+
+            db.collection('comments').where('itemId', '==', itemId).orderBy('createdAt', 'asc').onSnapshot(snapshot => {
+                if (snapshot.empty) {
+                    list.innerHTML = '<p style="color:var(--text-muted); font-size:12px;">لا توجد أسئلة أو تعليقات بعد. كن أول من يسأل!</p>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    list.innerHTML += `
+                        <div class="qa-item">
+                            <div class="qa-author"><i class="fa-solid fa-user"></i> ${data.authorName || 'مشترك'}</div>
+                            <div style="color:#fff;">${data.text}</div>
+                        </div>
+                    `;
+                });
+                list.scrollTop = list.scrollHeight;
+            });
+        }
+
+        async function submitQA() {
+            const input = document.getElementById('qaInput');
+            const txt = input.value.trim();
+            if (!txt || !currentViewingItemId || !currentUser) return;
+
+            const name = document.getElementById('user-display-name').innerText || 'مشترك';
+
+            try {
+                await db.collection('comments').add({
+                    itemId: currentViewingItemId,
+                    authorName: name,
+                    text: txt,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                input.value = '';
+            } catch (e) {
+                alert('خطأ أثناء الإرسال: ' + e.message);
+            }
+        }
+
+        // ----------------------------------------------------
+        // 5. Calculators Logic
+        // ----------------------------------------------------
+        function calcOhm() {
+            let v = parseFloat(document.getElementById('ohm-v').value);
+            let i = parseFloat(document.getElementById('ohm-i').value);
+            let r = parseFloat(document.getElementById('ohm-r').value);
+            let p = 0;
+
+            if (v && i) { r = v / i; p = v * i; document.getElementById('ohm-r').value = r.toFixed(2); }
+            else if (v && r) { i = v / r; p = (v * v) / r; document.getElementById('ohm-i').value = i.toFixed(2); }
+            else if (i && r) { v = i * r; p = i * i * r; document.getElementById('ohm-v').value = v.toFixed(2); }
+
+            document.getElementById('ohm-result').innerText = `القدرة الكهربائية (Power): ${p ? p.toFixed(2) : 0} Watt`;
+        }
+
+        function calcResistor() {
+            const b1 = parseInt(document.getElementById('res-b1').value);
+            const b2 = parseInt(document.getElementById('res-b2').value);
+            const mult = parseInt(document.getElementById('res-mult').value);
+
+            let val = ((b1 * 10) + b2) * mult;
+            let formatted = val >= 1000000 ? (val / 1000000) + ' MΩ' : (val >= 1000 ? (val / 1000) + ' kΩ' : val + ' Ω');
+            document.getElementById('resistor-result').innerText = `قيمة المقاومة: ${formatted}`;
+        }
+
+        function calc555() {
+            const r1 = parseFloat(document.getElementById('t555-r1').value) * 1000;
+            const r2 = parseFloat(document.getElementById('t555-r2').value) * 1000;
+            const c = parseFloat(document.getElementById('t555-c').value) / 1000000;
+
+            if (!r1 || !r2 || !c) return;
+
+            const freq = 1.44 / ((r1 + 2 * r2) * c);
+            const th = 0.693 * (r1 + r2) * c;
+            const tl = 0.693 * r2 * c;
+            const duty = (th / (th + tl)) * 100;
+
+            document.getElementById('t555-result').innerText = `التردد: ${freq.toFixed(2)} Hz | Duty Cycle: ${duty.toFixed(1)}%`;
+        }
+
+        // ----------------------------------------------------
+        // 6. AI Assistant Drawer
         // ----------------------------------------------------
         function toggleAIChat() {
             const drawer = document.getElementById('ai-chat-drawer');
@@ -1252,7 +1708,7 @@
         }
 
         // ----------------------------------------------------
-        // 4. Logo Settings & Profile Images
+        // 7. Logo Settings & Profile Images
         // ----------------------------------------------------
         function handleAvatarSelect(event) {
             const file = event.target.files[0];
@@ -1318,7 +1774,7 @@
         }
 
         // ----------------------------------------------------
-        // 5. Navigation & Session Timeout Management (1 Hour)
+        // 8. Navigation & Session Timeout Management (1 Hour)
         // ----------------------------------------------------
         function switchTab(tabId) {
             document.querySelectorAll('.tab-page').forEach(el => el.classList.remove('active'));
@@ -1328,6 +1784,7 @@
             if (target) target.classList.add('active');
 
             if (tabId === 'admin') loadAdminData();
+            if (tabId === 'saved') renderSavedItems();
         }
 
         function check1HourSessionTimer() {
