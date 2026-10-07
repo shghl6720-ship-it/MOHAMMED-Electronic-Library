@@ -17,6 +17,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
 
     <style>
         :root {
@@ -936,7 +937,7 @@
                             <textarea id="newBookDesc" class="form-control" rows="2" placeholder="وصف محتوى الكتاب..."></textarea>
                         </div>
 
-                        <!-- رفع من الجهاز أو رابط -->
+                        <!-- رفع من الجهاز إلى Firebase Storage أو استخدام رابط -->
                         <div style="border: 2px dashed var(--primary-cyan); padding: 20px; border-radius: var(--radius-md); margin-bottom: 20px; background: rgba(0, 191, 255, 0.03);">
                             <label style="font-weight:bold; color:#fff; display:block; margin-bottom:10px;"><i class="fa-solid fa-file-pdf"></i> اختر ملف الكتاب (PDF) من جهازك مباشرة:</label>
                             <input type="file" id="newBookPdfFile" class="form-control" accept="application/pdf" style="margin-bottom: 12px;">
@@ -1177,6 +1178,7 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
+        const storage = firebase.storage();
 
         // تفعيل استمرارية الجلسة لمنع تسجيل الخروج عند الـ Refresh
         auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
@@ -1208,7 +1210,7 @@
             toast.className = 'toast-msg';
             toast.innerHTML = `<i class="fa-solid fa-circle-info" style="color:var(--primary-cyan);"></i> ${msg}`;
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 4000);
+            setTimeout(() => toast.remove(), 4500);
         }
 
         // ----------------------------------------------------
@@ -1359,14 +1361,27 @@
         }
 
         // ----------------------------------------------------
-        // 3. File Helpers & Admin Actions (No Stucking)
+        // 3. Firebase Storage Upload Helper (للأحجام الكبيرة)
         // ----------------------------------------------------
-        function readFileAsBase64(file) {
+        function uploadFileWithProgress(file, folderPath, onProgress) {
             return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
+                const cleanFileName = Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9.]/g, '_');
+                const storageRef = storage.ref().child(`${folderPath}/${cleanFileName}`);
+                const uploadTask = storageRef.put(file);
+
+                uploadTask.on('state_changed', 
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        if (onProgress) onProgress(Math.round(progress));
+                    }, 
+                    (error) => {
+                        reject(error);
+                    }, 
+                    async () => {
+                        const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                        resolve(downloadURL);
+                    }
+                );
             });
         }
 
@@ -1386,17 +1401,22 @@
             let finalCoverUrl = remoteCoverInput || 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop';
 
             btn.disabled = true;
-            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع وتخزين الكتاب...`;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري تجهيز الملفات...`;
 
             try {
-                // رفع الـ PDF إن وجد
+                // 1. رفع ملف الـ PDF إلى Firebase Storage بحجم محتويات غير محدود
                 if (pdfFileInput.files && pdfFileInput.files[0]) {
-                    finalPdfUrl = await readFileAsBase64(pdfFileInput.files[0]);
+                    const pdfFile = pdfFileInput.files[0];
+                    finalPdfUrl = await uploadFileWithProgress(pdfFile, 'books_pdf', (percent) => {
+                        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الكتاب (${percent}%)...`;
+                    });
                 }
 
-                // رفع الغلاف إن وجد
+                // 2. رفع صورة الغلاف إلى Firebase Storage إذا تم اختيارها
                 if (coverFileInput.files && coverFileInput.files[0]) {
-                    finalCoverUrl = await readFileAsBase64(coverFileInput.files[0]);
+                    const coverFile = coverFileInput.files[0];
+                    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري رفع الغلاف...`;
+                    finalCoverUrl = await uploadFileWithProgress(coverFile, 'books_covers');
                 }
 
                 if (!finalPdfUrl) {
@@ -1406,6 +1426,8 @@
                     return;
                 }
 
+                // 3. حفظ بيانات الكتاب في Firestore
+                btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ بيانات الكتاب...`;
                 await db.collection('books').add({
                     title: title,
                     desc: desc,
@@ -1414,10 +1436,11 @@
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
-                showToast('تم رفع ونشر الكتاب بنجاح بالمنصة! 🎉');
+                showToast('تم رفع ونشر الكتاب بنجاح في المنصة! 🎉');
                 event.target.reset();
             } catch (err) {
-                alert('خطأ أثناء الرفع: ' + err.message);
+                console.error(err);
+                alert('خطأ أثناء الرفع: ' + err.message + '\nتأكد من تفعيل قواعد Firebase Storage Rules!');
             } finally {
                 btn.disabled = false;
                 btn.innerHTML = `<i class="fa-solid fa-floppy-disk"></i> نشر وإضافة الكتاب الآن`;
@@ -1506,9 +1529,7 @@
                 openProfileModal();
             } else {
                 let displayUrl = url;
-                if (url.startsWith('data:application/pdf')) {
-                    displayUrl = url;
-                } else if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
+                if (url.includes('raw.githubusercontent.com') || url.includes('github.com') || url.toLowerCase().endsWith('.pdf')) {
                     displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
                 }
                 document.getElementById('pdfViewerTitle').innerText = title;
@@ -1609,26 +1630,32 @@
             }, 400);
         }
 
-        function handleAvatarSelect(e) {
+        async function handleAvatarSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
-            readFileAsBase64(file).then(base64 => {
-                selectedAvatarBase64 = base64;
-                document.getElementById('avatar-preview-img').src = base64;
+            try {
+                const url = await uploadFileWithProgress(file, 'avatars');
+                selectedAvatarBase64 = url;
+                document.getElementById('avatar-preview-img').src = url;
                 document.getElementById('avatar-preview-img').style.display = 'block';
                 document.getElementById('avatar-icon-placeholder').style.display = 'none';
-            });
+            } catch (err) {
+                alert('خطأ في تحميل الصورة: ' + err.message);
+            }
         }
 
-        function handleLogoSelect(e) {
+        async function handleLogoSelect(e) {
             const file = e.target.files[0];
             if (!file) return;
-            readFileAsBase64(file).then(base64 => {
-                selectedLogoBase64 = base64;
-                document.getElementById('admin-logo-preview').src = base64;
+            try {
+                const url = await uploadFileWithProgress(file, 'logos');
+                selectedLogoBase64 = url;
+                document.getElementById('admin-logo-preview').src = url;
                 document.getElementById('admin-logo-preview').style.display = 'block';
                 document.getElementById('admin-logo-icon-placeholder').style.display = 'none';
-            });
+            } catch (err) {
+                alert('خطأ في تحميل اللوجو: ' + err.message);
+            }
         }
 
         async function saveCustomLogo() {
