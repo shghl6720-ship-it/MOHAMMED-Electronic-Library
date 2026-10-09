@@ -56,7 +56,6 @@
             position: relative;
         }
 
-        /* خلفية دوائر PCB متحركة بخفة */
         .pcb-bg-overlay {
             position: fixed;
             top: 0;
@@ -802,7 +801,7 @@
             <section class="hero-section">
                 <div>
                     <h1 class="hero-title">MOHAMMED Electronic Library</h1>
-                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية والكورسات المتقدمة والأدوات الحاسبة. تصفح واقرأ واكتسب الخبرة مباشرة.</p>
+                    <p class="hero-subtitle">مكتبتك الرقمية الشاملة للكتب والمراجع الهندسية والكورسات المتقدمة والأدوات الحاسبة. تصفح واقرأ واكتسب الخبرة مباشرة (للقراء فقط).</p>
                     <div style="display:flex; gap:12px; flex-wrap:wrap;">
                         <button class="btn btn-cyan" onclick="switchTab('books')"><i class="fa-solid fa-book-open"></i> استعرض الكتب</button>
                         <button class="btn btn-purple" onclick="switchTab('courses')"><i class="fa-solid fa-graduation-cap"></i> قسم الكورسات</button>
@@ -820,14 +819,14 @@
             </section>
 
             <section>
-                <h2 style="margin-bottom: 20px; color: #fff;"><i class="fa-solid fa-book-bookmark" style="color:var(--primary-cyan);"></i> قائمة الكتب المتاحة</h2>
+                <h2 style="margin-bottom: 20px; color: #fff;"><i class="fa-solid fa-book-bookmark" style="color:var(--primary-cyan);"></i> قائمة الكتب المتاحة للقراء</h2>
                 <div class="books-grid" id="home-books-container"></div>
             </section>
         </div>
 
         <!-- Books Tab -->
         <div id="tab-books" class="tab-page">
-            <h2 style="margin: 30px 0 20px; color: #fff;"><i class="fa-solid fa-book"></i> جميع الكتب والمستندات بالمكتبة</h2>
+            <h2 style="margin: 30px 0 20px; color: #fff;"><i class="fa-solid fa-book"></i> جميع الكتب والمستندات بالمكتبة (للقراء فقط)</h2>
             <div class="books-grid" id="all-books-container"></div>
         </div>
 
@@ -1084,7 +1083,7 @@
             <button onclick="toggleAIChat()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button>
         </div>
         <div class="ai-chat-body" id="ai-chat-body">
-            <div class="ai-msg">مرحباً بك! أنا مساعدك الذكي في MOHAMMED Electronic Library. اسألني عن القوانين الهندسية، المكونات، أو اطلب مني البحث عن كتاب أو كورس!</div>
+            <div class="ai-msg">مرحباً بك في قسم القراء! أنا مساعدك الذكي في MOHAMMED Electronic Library. اسألني عن القوانين الهندسية، المكونات، أو اطلب مني البحث عن كتاب أو كورس!</div>
         </div>
         <div class="ai-chat-footer">
             <input type="text" id="ai-input" class="form-control" placeholder="اكتب سؤالك الهندسي هنا..." onkeypress="if(event.key==='Enter') sendAIMessage()">
@@ -1092,11 +1091,11 @@
         </div>
     </div>
 
-    <!-- Modal: Internal Protected PDF/Course Viewer (ممنوع التحميل مع Q&A) -->
+    <!-- Modal: Internal Protected PDF/Course Viewer (للقراء فقط مع حماية كاملة من التنزيل وQ&A) -->
     <div class="modal-overlay" id="pdfViewerModal">
         <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px; position:relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
-                <h3 id="pdfViewerTitle" style="color: var(--primary-cyan); font-size: 16px; font-weight: 800;"><i class="fa-solid fa-book-open"></i> قراءة المحتوى (محمي من التنزيل)</h3>
+                <h3 id="pdfViewerTitle" style="color: var(--primary-cyan); font-size: 16px; font-weight: 800;"><i class="fa-solid fa-book-open"></i> قراءة المحتوى (مخصص للقراء فقط - محمي من التنزيل)</h3>
                 <button class="close-modal" onclick="closeModal('pdfViewerModal')" style="position: static; font-size: 16px; background: rgba(239, 68, 68, 0.2); color: var(--danger); padding: 4px 12px; border-radius: 6px; border: 1px solid var(--danger);">✕ إغلاق النافذة</button>
             </div>
             
@@ -1107,7 +1106,7 @@
 
             <!-- Q&A Section تحت الكتاب/الكورس -->
             <div style="margin-top: 15px; display: flex; flex-direction: column; height: 35%;">
-                <h4 style="font-size: 13px; color: var(--primary-cyan); margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> أسئلة واستفسارات المشتركين حول هذا المحتوى</h4>
+                <h4 style="font-size: 13px; color: var(--primary-cyan); margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> أسئلة واستفسارات القراء حول هذا المحتوى</h4>
                 <div class="qa-box" id="qaList"></div>
                 <div style="display: flex; gap: 8px; margin-top: 8px;">
                     <input type="text" id="qaInput" class="form-control" placeholder="اكتب استفسارك أو سؤالك الهندي هنا..." onkeypress="if(event.key==='Enter') submitQA()">
@@ -1121,7 +1120,7 @@
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('authModal')">✕</button>
-            <h3 id="modalAuthTitle" style="margin-bottom: 16px; text-align: center; color: #fff;">تسجيل الدخول</h3>
+            <h3 id="modalAuthTitle" style="margin-bottom: 16px; text-align: center; color: #fff;">تسجيل الدخول للقراءة</h3>
 
             <form onsubmit="handleAuth(event)">
                 <div class="form-group">
@@ -1145,8 +1144,8 @@
     <div class="modal-overlay" id="profileModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('profileModal')">✕</button>
-            <h3 style="margin-bottom: 8px; text-align: center; color: var(--primary-cyan);"><i class="fa-solid fa-user-gear"></i> إكمال وتحديث الملف الشخصي</h3>
-            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">البيانات مطلوبة لتفعيل صلاحية القراءة ومشاهدة الكورسات</p>
+            <h3 style="margin-bottom: 8px; text-align: center; color: var(--primary-cyan);"><i class="fa-solid fa-user-gear"></i> إكمال وتحديث ملف القارئ</h3>
+            <p style="font-size: 12px; color: var(--text-muted); text-align: center; margin-bottom: 20px;">البيانات مطلوبة لتفعيل صلاحية القراءة الحصرية ومشاهدة الكورسات</p>
 
             <form onsubmit="saveProfile(event)">
                 <div class="image-preview-container">
@@ -1170,13 +1169,13 @@
                     <input type="text" id="profileJob" class="form-control" required placeholder="مثال: طالب هندسة / مهندس إلكترونيات">
                 </div>
 
-                <button type="submit" class="btn btn-cyan" style="width: 100%; justify-content: center; margin-top: 10px;"><i class="fa-solid fa-floppy-disk"></i> حفظ الملف والتغييرات</button>
+                <button type="submit" class="btn btn-cyan" style="width: 100%; justify-content: center; margin-top: 10px;"><i class="fa-solid fa-floppy-disk"></i> حفظ الملف وتفعيل القراءة</button>
             </form>
         </div>
     </div>
 
     <footer>
-        © 2026 MOHAMMED Electronic Library | المهندس محمد حسين عبد العزيز
+        © 2026 MOHAMMED Electronic Library | المهندس محمد حسين عبد العزيز - منصة مخصصة للقراء فقط
     </footer>
 
     <script>
@@ -1259,7 +1258,7 @@
 
                 if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
                     const newBook = snapshot.docChanges().find(c => c.type === 'added').doc.data();
-                    showToast('كتاب جديد متاح الآن! 📚', newBook.title);
+                    showToast('كتاب جديد متاح للقراء الآن! 📚', newBook.title);
                 }
 
                 booksList = [];
@@ -1283,7 +1282,7 @@
 
                 if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
                     const newCourse = snapshot.docChanges().find(c => c.type === 'added').doc.data();
-                    showToast('كورس جديد متاح الآن! 🎓', newCourse.title);
+                    showToast('كورس جديد متاح للقراء الآن! 🎓', newCourse.title);
                 }
 
                 coursesList = [];
@@ -1337,7 +1336,7 @@
                             <h3 class="book-title">${b.title}</h3>
                             <p class="book-desc">${b.desc || 'مستند مرجعي متقدم في الإلكترونيات والهندسة.'}</p>
                         </div>
-                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}', '${b.id}')"><i class="fa-solid fa-book-open"></i> قراءة الكتاب بالمنصة</button>
+                        <button class="btn btn-cyan" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessBook('${b.url}', '${safeTitle}', '${b.id}')"><i class="fa-solid fa-book-open"></i> قراءة الكتاب (للقراء فقط)</button>
                     </div>
                 </div>
             `}).join('');
@@ -1366,7 +1365,7 @@
                             <h3 class="book-title">${c.title}</h3>
                             <p class="book-desc">${c.desc || 'كورس تعليمي وتطبيقي شامل في الهندسة.'}</p>
                         </div>
-                        <button class="btn btn-purple" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessCourse('${c.url}', '${safeTitle}', '${c.id}')"><i class="fa-solid fa-circle-play"></i> مشاهدة الدورة الآن</button>
+                        <button class="btn btn-purple" style="width:100%; justify-content:center; margin-top:10px;" onclick="accessCourse('${c.url}', '${safeTitle}', '${c.id}')"><i class="fa-solid fa-circle-play"></i> مشاهدة الدورة (للقراء فقط)</button>
                     </div>
                 </div>
             `}).join('');
@@ -1423,7 +1422,6 @@
             });
         }
 
-        // دالة تحويل وسائط الجهاز وإدارتها (Base64 / Storage)
         async function handleFileUpload(fileInputId) {
             const input = document.getElementById(fileInputId);
             if (!input || !input.files || input.files.length === 0) return null;
@@ -1546,13 +1544,13 @@
             renderBooks(filtered);
         }
 
-        // دالة فتح القراءة المحمية مع تحميل محادثة Q&A المخصصة للكتاب
+        // شروط القراءة الحصرية (للقراء فقط): يتطلب تسجيل دخول وإكمال الملف الشخصي
         function accessBook(url, title = 'عرض الكتاب', itemId = null) {
             if (!currentUser) {
-                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول لخدمات القراءة!');
+                alert('عفواً، هذا المحتوى مخصص للقراء فقط! يرجى تسجيل الدخول أو إنشاء حساب جديد.');
                 openAuthModal('register');
             } else if (!isProfileComplete) {
-                alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل صلاحية القراءة!');
+                alert('عفواً، يرجى إكمال بيانات الملف الشخصي (الاسم والتخصص) لتفعيل صلاحية القراءة الحصرية!');
                 openProfileModal();
             } else {
                 let displayUrl = url;
@@ -1562,7 +1560,7 @@
                     displayUrl = 'https://docs.google.com/gview?url=' + encodeURIComponent(url) + '&embedded=true';
                 }
 
-                document.getElementById('pdfViewerTitle').innerText = title;
+                document.getElementById('pdfViewerTitle').innerText = title + ' (مخصص للقراء فقط)';
                 document.getElementById('pdfFrame').src = displayUrl;
                 document.getElementById('pdfViewerModal').style.display = 'flex';
 
@@ -1572,14 +1570,14 @@
 
         function accessCourse(url, title = 'مشاهدة الكورس', itemId = null) {
             if (!currentUser) {
-                alert('عفواً، يجب عليك تسجيل الدخول أولاً للوصول للكورسات!');
+                alert('عفواً، هذا المحتوى مخصص للقراء فقط! يرجى تسجيل الدخول أو إنشاء حساب جديد.');
                 openAuthModal('register');
             } else if (!isProfileComplete) {
-                alert('يرجى إكمال بيانات الملف الشخصي أولاً لتفعيل الوصول للكورسات!');
+                alert('عفواً، يرجى إكمال بيانات الملف الشخصي لتفعيل صلاحية الوصول للكورسات!');
                 openProfileModal();
             } else {
                 currentViewingItemId = itemId;
-                document.getElementById('pdfViewerTitle').innerText = title;
+                document.getElementById('pdfViewerTitle').innerText = title + ' (مخصص للقراء فقط)';
                 document.getElementById('pdfFrame').src = url;
                 document.getElementById('pdfViewerModal').style.display = 'flex';
 
@@ -1608,7 +1606,7 @@
                     const data = doc.data();
                     list.innerHTML += `
                         <div class="qa-item">
-                            <div class="qa-author"><i class="fa-solid fa-user"></i> ${data.authorName || 'مشترك'}</div>
+                            <div class="qa-author"><i class="fa-solid fa-user"></i> ${data.authorName || 'قارئ'}</div>
                             <div style="color:#fff;">${data.text}</div>
                         </div>
                     `;
@@ -1622,7 +1620,7 @@
             const txt = input.value.trim();
             if (!txt || !currentViewingItemId || !currentUser) return;
 
-            const name = document.getElementById('user-display-name').innerText || 'مشترك';
+            const name = document.getElementById('user-display-name').innerText || 'قارئ';
 
             try {
                 await db.collection('comments').add({
@@ -1696,7 +1694,7 @@
             input.value = '';
 
             setTimeout(() => {
-                let answer = "يمكنك البحث في قسم المكتبة أو قسم الكورسات لمزيد من المعلومات التفصيلية عن: " + txt;
+                let answer = "مرحباً بك أيها القارئ! يمكنك البحث في قسم المكتبة أو قسم الكورسات لمزيد من المعلومات التفصيلية عن: " + txt;
                 if (txt.toLowerCase().includes('kirchhoff') || txt.includes('كيرشوف')) {
                     answer = "قانون كيرشوف للجهد (KVL): مجموع الفروق في الجهد الكهربائي حول أي مسار مغلق يساوي صفراً.";
                 } else if (txt.toLowerCase().includes('plc') || txt.includes('بي ال سي')) {
@@ -1797,7 +1795,7 @@
             const elapsed = Date.now() - parseInt(sessionStart);
 
             if (elapsed >= SESSION_DURATION_MS) {
-                alert('انتهت مدة الصلاحية المسموح بها للجلسة (ساعة واحدة). تم تسجيل الخروج تلقائياً لأسباب أمنية.');
+                alert('انتهت مدة الجلسة المسموح بها (ساعة واحدة). تم تسجيل الخروج تلقائياً لأسباب أمنية.');
                 logout();
                 return false;
             }
@@ -1825,7 +1823,7 @@
                 const uid = doc.id;
                 const isAdmin = (u.email === SUPER_ADMIN_EMAIL) || (u.isAdmin === true) || (u.role === 'admin');
 
-                let roleBadge = isAdmin ? '<span class="badge-admin"><i class="fa-solid fa-shield-halved"></i> أدمن</span>' : '<span class="badge-user">مشترك</span>';
+                let roleBadge = isAdmin ? '<span class="badge-admin"><i class="fa-solid fa-shield-halved"></i> أدمن</span>' : '<span class="badge-user">قارئ</span>';
                 let actionBtn = '';
 
                 if (u.email === SUPER_ADMIN_EMAIL) {
@@ -1870,7 +1868,7 @@
             try {
                 const snapshot = await db.collection('users').where('email', '==', email).get();
                 if (snapshot.empty) {
-                    alert('لم يتم العثور على حساب بهذا البريد في قاعدة البيانات. اطلب من المستخدم إنشاء حساب أولاً!');
+                    alert('لم يتم العثور على حساب بهذا البريد في قاعدة البيانات. اطلب من القارئ إنشاء حساب أولاً!');
                     return;
                 }
 
@@ -1891,7 +1889,7 @@
 
         function openAuthModal(mode) {
             authMode = mode;
-            document.getElementById('modalAuthTitle').innerText = mode === 'register' ? 'إنشاء حساب جديد' : 'تسجيل الدخول';
+            document.getElementById('modalAuthTitle').innerText = mode === 'register' ? 'إنشاء حساب جديد للقراء' : 'تسجيل الدخول للقراء';
             document.getElementById('authSubmitBtn').innerText = mode === 'register' ? 'إنشاء حساب' : 'دخول';
             document.getElementById('authModal').style.display = 'flex';
         }
@@ -1958,7 +1956,7 @@
 
             try {
                 await db.collection('users').doc(currentUser.uid).set(updateData, { merge: true });
-                alert('تم حفظ البيانات بنجاح!');
+                alert('تم حفظ البيانات بنجاح! تم تفعيل صلاحية القراءة.');
                 closeModal('profileModal');
                 checkUserProfile(currentUser);
             } catch (err) {
@@ -2031,11 +2029,11 @@
             auth.signOut();
         }
 
-        // حماية لوحة التحكم واختصارات التنزيل/الطباعة
+        // حماية لوحة التحكم واختصارات التنزيل/الطباعة للقراء
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
                 e.preventDefault();
-                alert('تنبيه: التحميل أو الطباعة غير متاح حمايةً لحقوق المحتوى الهندسي.');
+                alert('تنبيه: التحميل أو الطباعة غير متاح حمايةً لحقوق القراءة والمحتوى الهندسي.');
             }
         });
 
