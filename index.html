@@ -1175,27 +1175,30 @@
         let selectedAvatarBase64 = "";
         let selectedLogoBase64 = "";
         let sessionTimerRef = null;
-        let isFirstLoad = true;
 
         const GITHUB_BASE_URL = "https://raw.githubusercontent.com/shghl6720-ship-it/MOHAMMED-Electronic-Library/main/";
 
-        const initialBooksSeed = [
-            { title: 'Analog Electronics', desc: 'مرجع شامل في الإلكترونيات التناظرية وتحليل الدوائر.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_Electronics.pdf') },
-            { title: 'Analog Electronics Applications', desc: 'تطبيقات عملية وفحص العناصر في الإلكترونيات التناظرية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_Electronics_Applications.pdf') },
-            { title: 'Analog and VLSI Circuits', desc: 'كتاب دوائر VLSI والإلكترونيات التناظرية الدقيقة.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_and_VLSI_Circuits_www_electronicb.pdf') },
-            { title: 'نظرية وتكنولوجيا الدوائر الكهربائية', desc: 'شرح القوانين والنظريات الأساسية للدوائر الكهربائية.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('نظرية وتكنولوجيا الدوائر الكهربائية.pdf') },
-            { title: 'Electronic Devices and Amplifier Circuit', desc: 'الأجهزة الإلكترونية ودوائر المكبرات (Amplifiers).', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Electronic_Devices_and_Amplifier_Circuit.pdf') },
-            { title: 'دليل مختبر ورشة عمل الإلكترونيات', desc: 'دليل ورش العمل والمختبرات للقياسات والتجارب العملية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل مختبر ورشة عمل الإلكترونيات.pdf') },
-            { title: 'أساسيات الإلكترونيات التناظرية والرقمية', desc: 'مرجع شامل يجمع بين الإلكترونيات التناظرية والرقمية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('أساسيات الإلكترونيات التناظرية والرقمية.pdf') },
-            { title: 'كتاب أساسيات الإلكترونيات 1', desc: 'الجزء الأول من مبادئ وأساسيات الهندسة الإلكترونية.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('كتاب أساسيات الإلكترونيات 1 (1).pdf') },
-            { title: 'مقدمة في الهندسة الإلكترونية', desc: 'مدخل تعليمي مبسط ومهم لجميع المبتدئين والطلاب.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('مقدمة في الهندسة الإلكترونية.pdf') },
-            { title: 'Principles of Electric Circuits', desc: 'مبادئ الدوائر الكهربائية والتحليل الكهربائي.', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Principles_of_electric_circuits_Conventi.pdf') },
-            { title: 'تلخيص وإصلاح جميع الأعطال الإلكترونية', desc: 'كتاب عملي وقيّم جداً لصيانة وتتبع الأعطال الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('تلخيص وإصلاح جميع الأعطال الإلكترونية (ملف PDF).pdf') },
-            { title: 'دليل الإلكترونيات الشامل', desc: 'دليل مرجعي للمكونات الإلكترونية وطرق قياسها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل الإلكترونيات.pdf') }
+        // قائمة الكتب الـ 15 المرفوعة على جيت هاب
+        const defaultBooks = [
+            { id: 'b1', title: 'Analog Electronics', desc: 'مرجع شامل في الإلكترونيات التناظرية وتحليل الدوائر.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Analog_Electronics.pdf' },
+            { id: 'b2', title: 'Analog Electronics Applications', desc: 'تطبيقات عملية وفحص العناصر في الإلكترونيات التناظرية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Analog_Electronics_Applications.pdf' },
+            { id: 'b3', title: 'Analog and VLSI Circuits', desc: 'كتاب دوائر VLSI والإلكترونيات التناظرية الدقيقة.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Analog_and_VLSI_Circuits_www_electronicb.pdf' },
+            { id: 'b4', title: 'نظرية وتكنولوجيا الدوائر الكهربائية', desc: 'شرح القوانين والنظريات الأساسية للدوائر الكهربائية.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('نظرية وتكنولوجيا الدوائر الكهربائية.pdf') },
+            { id: 'b5', title: 'Electronic Devices and Amplifier Circuit', desc: 'الأجهزة الإلكترونية ودوائر المكبرات (Amplifiers).', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Electronic_Devices_and_Amplifier_Circuit.pdf' },
+            { id: 'b6', title: 'دليل مختبر ورشة عمل الإلكترونيات', desc: 'دليل ورش العمل والمختبرات للقياسات والتجارب العملية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل مختبر ورشة عمل الإلكترونيات.pdf') },
+            { id: 'b7', title: 'أساسيات الإلكترونيات التناظرية والرقمية', desc: 'مرجع شامل يجمع بين الإلكترونيات التناظرية والرقمية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('أساسيات الإلكترونيات التناظرية والرقمية.pdf') },
+            { id: 'b8', title: 'كتاب أساسيات الإلكترونيات 1 (1)', desc: 'الجزء الأول من مبادئ وأساسيات الهندسة الإلكترونية.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('كتاب أساسيات الإلكترونيات 1 (1).pdf') },
+            { id: 'b9', title: 'كتاب أساسيات الإلكترونيات 1: الإلكترونيات', desc: 'شرح مفصل لأساسيات العناصر الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('كتاب أساسيات الإلكترونيات 1: الإلكترونيات.pdf') },
+            { id: 'b10', title: 'مقدمة في الهندسة الإلكترونية', desc: 'مدخل تعليمي مبسط ومهم لجميع المبتدئين والطلاب.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('مقدمة في الهندسة الإلكترونية.pdf') },
+            { id: 'b11', title: 'Introductory Electronics Notes', desc: 'ملاحظات ومذكرات تعليمية في أساسيات الإلكترونيات.', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Introductory_Electronics_Notes_41_1_Copy.pdf' },
+            { id: 'b12', title: 'Principles of Electric Circuits', desc: 'مبادئ الدوائر الكهربائية والتحليل الكهربائي.', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'Principles_of_electric_circuits_Conventi.pdf' },
+            { id: 'b13', title: 'QSOGalaxy Association & Discrepant Redshift', desc: 'بحث ورسالة علمية متخصصة.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + 'QSOGalaxy_Association_and_Discrepant_Redshift.pdf' },
+            { id: 'b14', title: 'تلخيص وإصلاح جميع الأعطال الإلكترونية', desc: 'كتاب عملي وقيّم جداً لصيانة وتتبع الأعطال الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('تلخيص وإصلاح جميع الأعطال الإلكترونية (ملف PDF).pdf') },
+            { id: 'b15', title: 'دليل الإلكترونيات الشامل', desc: 'دليل مرجعي للمكونات الإلكترونية وطرق قياسها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل الإلكترونيات.pdf') }
         ];
 
-        const initialCoursesSeed = [
-            { title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' }
+        const defaultCourses = [
+            { id: 'c1', title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' }
         ];
 
         function showToast(title, body) {
@@ -1205,63 +1208,64 @@
             toast.innerHTML = `<i class="fa-solid fa-bell" style="color:var(--primary-cyan);"></i> <div><strong>${title}</strong><br><small>${body}</small></div>`;
             container.appendChild(toast);
             setTimeout(() => toast.remove(), 4000);
-
-            if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(title, { body: body, icon: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=100' });
-            }
-        }
-
-        if ("Notification" in window && Notification.permission !== "granted") {
-            Notification.requestPermission();
         }
 
         function syncBooksLive() {
-            db.collection('books').onSnapshot(async (snapshot) => {
-                if (snapshot.empty) {
-                    for (const book of initialBooksSeed) {
-                        await db.collection('books').add({ ...book, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            // عرض الكتب الافتراضية الـ 15 فوراً
+            booksList = [...defaultBooks];
+            document.getElementById('books-count-badge').innerText = booksList.length;
+            renderBooks(booksList);
+            renderAdminBooksTable(booksList);
+
+            // دمج أي كتب جديدة ترفع من لوحة التحكم في Firebase
+            try {
+                db.collection('books').onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        const dbBooks = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (!defaultBooks.some(b => b.title === data.title)) {
+                                dbBooks.push({ id: doc.id, ...data });
+                            }
+                        });
+                        booksList = [...defaultBooks, ...dbBooks];
+                        document.getElementById('books-count-badge').innerText = booksList.length;
+                        renderBooks(booksList);
+                        renderAdminBooksTable(booksList);
+                        renderSavedItems();
                     }
-                    return;
-                }
-
-                if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
-                    const newBook = snapshot.docChanges().find(c => c.type === 'added').doc.data();
-                    showToast('كتاب جديد متاح للقراء الآن! 📚', newBook.title);
-                }
-
-                booksList = [];
-                snapshot.forEach(doc => booksList.push({ id: doc.id, ...doc.data() }));
-
-                document.getElementById('books-count-badge').innerText = booksList.length;
-                renderBooks(booksList);
-                renderAdminBooksTable(booksList);
-                renderSavedItems();
-            });
+                }, err => console.log("Firestore note", err));
+            } catch(e) {
+                console.log("Firestore sync note", e);
+            }
         }
 
         function syncCoursesLive() {
-            db.collection('courses').onSnapshot(async (snapshot) => {
-                if (snapshot.empty) {
-                    for (const course of initialCoursesSeed) {
-                        await db.collection('courses').add({ ...course, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+            coursesList = [...defaultCourses];
+            document.getElementById('courses-count-badge').innerText = coursesList.length;
+            renderCourses(coursesList);
+            renderAdminCoursesTable(coursesList);
+
+            try {
+                db.collection('courses').onSnapshot(snapshot => {
+                    if (!snapshot.empty) {
+                        const dbCourses = [];
+                        snapshot.forEach(doc => {
+                            const data = doc.data();
+                            if (!defaultCourses.some(c => c.title === data.title)) {
+                                dbCourses.push({ id: doc.id, ...data });
+                            }
+                        });
+                        coursesList = [...defaultCourses, ...dbCourses];
+                        document.getElementById('courses-count-badge').innerText = coursesList.length;
+                        renderCourses(coursesList);
+                        renderAdminCoursesTable(coursesList);
+                        renderSavedItems();
                     }
-                    return;
-                }
-
-                if (!isFirstLoad && snapshot.docChanges().some(change => change.type === 'added')) {
-                    const newCourse = snapshot.docChanges().find(c => c.type === 'added').doc.data();
-                    showToast('كورس جديد متاح للقراء الآن! 🎓', newCourse.title);
-                }
-
-                coursesList = [];
-                snapshot.forEach(doc => coursesList.push({ id: doc.id, ...doc.data() }));
-
-                document.getElementById('courses-count-badge').innerText = coursesList.length;
-                renderCourses(coursesList);
-                renderAdminCoursesTable(coursesList);
-                renderSavedItems();
-                isFirstLoad = false;
-            });
+                }, err => console.log("Firestore note", err));
+            } catch(e) {
+                console.log("Firestore sync note", e);
+            }
         }
 
         function toggleFavorite(itemId, e) {
@@ -1496,13 +1500,25 @@
 
         async function deleteBook(bookId) {
             if (confirm('هل أنت تأكد من رغبتك في حذف هذا الكتاب؟')) {
-                await db.collection('books').doc(bookId).delete();
+                if(bookId.startsWith('b')) {
+                    booksList = booksList.filter(b => b.id !== bookId);
+                    renderBooks(booksList);
+                    renderAdminBooksTable(booksList);
+                } else {
+                    await db.collection('books').doc(bookId).delete();
+                }
             }
         }
 
         async function deleteCourse(courseId) {
             if (confirm('هل أنت تأكد من رغبتك في حذف هذا الكورس؟')) {
-                await db.collection('courses').doc(courseId).delete();
+                if(courseId.startsWith('c')) {
+                    coursesList = coursesList.filter(c => c.id !== courseId);
+                    renderCourses(coursesList);
+                    renderAdminCoursesTable(coursesList);
+                } else {
+                    await db.collection('courses').doc(courseId).delete();
+                }
             }
         }
 
