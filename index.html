@@ -44,7 +44,7 @@
             padding: 0;
             font-family: 'Cairo', sans-serif;
             scroll-behavior: smooth;
-            user-select: none; /* حماية المحتوى من النسخ */
+            user-select: none;
         }
 
         body {
@@ -78,7 +78,6 @@
             z-index: 1;
         }
 
-        /* Toast Notifications */
         .toast-container {
             position: fixed;
             top: 20px;
@@ -108,7 +107,6 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Header Navigation */
         header {
             background: rgba(7, 11, 20, 0.92);
             backdrop-filter: blur(16px);
@@ -272,7 +270,6 @@
             background: rgba(0, 191, 255, 0.1);
         }
 
-        /* Hero Section */
         .hero-section {
             padding: 40px 0 20px;
             display: grid;
@@ -299,7 +296,6 @@
             font-weight: 600;
         }
 
-        /* Search Container */
         .search-container {
             background: var(--bg-card);
             border: 1px solid var(--border-glow);
@@ -338,7 +334,6 @@
             border-color: var(--primary-cyan);
         }
 
-        /* Cards Grid */
         .books-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -426,7 +421,6 @@
             margin-bottom: 16px;
         }
 
-        /* Image Upload Elements */
         .image-preview-container {
             display: flex;
             flex-direction: column;
@@ -468,7 +462,6 @@
             gap: 6px;
         }
 
-        /* Calculators Styling */
         .calc-card {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -495,7 +488,6 @@
             font-weight: bold;
         }
 
-        /* Q&A Section */
         .qa-box {
             margin-top: 20px;
             background: rgba(7, 11, 20, 0.9);
@@ -519,7 +511,6 @@
             font-size: 12px;
         }
 
-        /* AI Assistant Drawer */
         .ai-widget-btn {
             position: fixed;
             bottom: 24px;
@@ -606,7 +597,6 @@
             gap: 8px;
         }
 
-        /* Admin & Modals */
         .admin-box {
             background: var(--bg-card);
             border: 1px solid var(--border-color);
@@ -731,7 +721,6 @@
             text-align: center;
         }
 
-        /* شريط حماية من التنزيل */
         .pdf-security-guard {
             position: absolute;
             top: 0;
@@ -748,10 +737,8 @@
 
     <div class="pcb-bg-overlay"></div>
 
-    <!-- Toast Notifications Container -->
     <div class="toast-container" id="toastContainer"></div>
 
-    <!-- Header Navigation -->
     <header>
         <div class="container nav-wrapper">
             <a class="brand-logo" onclick="switchTab('home')">
@@ -796,7 +783,6 @@
 
     <main class="container">
 
-        <!-- Home Tab -->
         <div id="tab-home" class="tab-page active">
             <section class="hero-section">
                 <div>
@@ -810,7 +796,6 @@
                 </div>
             </section>
 
-            <!-- Search Bar -->
             <section class="search-container">
                 <div class="search-input-box">
                     <i class="fa-solid fa-magnifying-glass"></i>
@@ -824,23 +809,19 @@
             </section>
         </div>
 
-        <!-- Books Tab -->
         <div id="tab-books" class="tab-page">
             <h2 style="margin: 30px 0 20px; color: #fff;"><i class="fa-solid fa-book"></i> جميع الكتب والمستندات بالمكتبة (للقراء فقط)</h2>
             <div class="books-grid" id="all-books-container"></div>
         </div>
 
-        <!-- Courses Tab -->
         <div id="tab-courses" class="tab-page">
             <h2 style="margin: 30px 0 20px; color: var(--primary-cyan);"><i class="fa-solid fa-graduation-cap"></i> الدورات والشروحات الهندسية الكورسات</h2>
             <div class="books-grid" id="courses-container"></div>
         </div>
 
-        <!-- Calculators Tab -->
         <div id="tab-calculators" class="tab-page">
             <h2 style="margin: 30px 0 20px; color: var(--primary-cyan);"><i class="fa-solid fa-calculator"></i> الحاسبات والأدوات الهندسية التفاعلية</h2>
             
-            <!-- 1. Ohm's Law Calculator -->
             <div class="calc-card">
                 <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-bolt" style="color:var(--warning);"></i> 1. حاسبة قانون أوم (Ohm's Law)</h3>
                 <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">أدخل قيمتين لحساب باقي المتغيرات الكهربائية تلقائياً:</p>
@@ -861,7 +842,6 @@
                 <div class="calc-result" id="ohm-result">القدرة الكهربائية (Power): 0 W</div>
             </div>
 
-            <!-- 2. Resistor Color Code Calculator -->
             <div class="calc-card">
                 <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-palette" style="color:var(--primary-cyan);"></i> 2. حاسبة ألوان المقاومات (4-Band Resistor)</h3>
                 <div class="calc-grid">
@@ -907,7 +887,6 @@
                 <div class="calc-result" id="resistor-result">قيمة المقاومة: 10 Ω</div>
             </div>
 
-            <!-- 3. 555 Timer Astable Calculator -->
             <div class="calc-card">
                 <h3 style="color:#fff; margin-bottom:10px;"><i class="fa-solid fa-clock" style="color:var(--secondary-purple);"></i> 3. حاسبة دوائر التذبذب 555 Timer Astable</h3>
                 <div class="calc-grid">
@@ -928,18 +907,15 @@
             </div>
         </div>
 
-        <!-- Saved / Favorites Tab -->
         <div id="tab-saved" class="tab-page">
             <h2 style="margin: 30px 0 20px; color: #ff4757;"><i class="fa-solid fa-heart"></i> قائمة المحتوى المفضلة والمحفوظة</h2>
             <div class="books-grid" id="saved-container"></div>
         </div>
 
-        <!-- Admin Dashboard Tab -->
         <div id="tab-admin" class="tab-page">
             <div class="admin-box">
                 <h2 style="margin-bottom: 20px; color: var(--warning);"><i class="fa-solid fa-sliders"></i> لوحة تحكم وإدارة المنصة</h2>
                 
-                <!-- إضافة كتاب جديد مباشرة بالرفع -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
                     <h3 style="font-size: 16px; color: var(--primary-cyan); margin-bottom: 16px;"><i class="fa-solid fa-file-arrow-up"></i> رفع وإضافة كتاب جديد للمكتبة مباشرة من جهازك</h3>
                     <form onsubmit="addBookFromAdmin(event)">
@@ -966,7 +942,6 @@
                     </form>
                 </div>
 
-                <!-- إضافة كورس جديد بالرفع المباشر -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 24px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
                     <h3 style="font-size: 16px; color: var(--secondary-purple); margin-bottom: 16px;"><i class="fa-solid fa-graduation-cap"></i> رفع وإضافة كورس تعليمي جديد</h3>
                     <form onsubmit="addCourseFromAdmin(event)">
@@ -992,7 +967,6 @@
                     </form>
                 </div>
 
-                <!-- إضافة مشرف جديد مباشرة بالبريد -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
                     <h3 style="font-size: 16px; color: var(--warning); margin-bottom: 12px;"><i class="fa-solid fa-user-shield"></i> ترقية وإضافة مشرف (أدمن) جديد مباشرة</h3>
                     <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 15px;">أدخل البريد الإلكتروني للمستخدم لترقيته تلقائياً ليصبح أدمن في المنصة:</p>
@@ -1002,7 +976,6 @@
                     </form>
                 </div>
 
-                <!-- تغيير اللوجو -->
                 <div style="background: rgba(7, 11, 20, 0.8); padding: 20px; border-radius: var(--radius-md); border: 1px solid var(--border-color); margin-bottom: 30px;">
                     <h3 style="font-size: 16px; color: var(--primary-cyan); margin-bottom: 15px;"><i class="fa-solid fa-image"></i> رفع وتغيير لوجو المنصة (Logo)</h3>
                     <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
@@ -1020,7 +993,6 @@
                     </div>
                 </div>
 
-                <!-- إدارة الكتب الحالية -->
                 <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-list-check"></i> الكتب المنشورة حالياً وحذفها</h3>
                 <div class="table-wrap" style="margin-bottom: 35px;">
                     <table>
@@ -1035,7 +1007,6 @@
                     </table>
                 </div>
 
-                <!-- إدارة الكورسات الحالية -->
                 <h3 style="margin-bottom: 15px;"><i class="fa-solid fa-list-check"></i> الكورسات المنشورة حالياً</h3>
                 <div class="table-wrap" style="margin-bottom: 35px;">
                     <table>
@@ -1050,7 +1021,6 @@
                     </table>
                 </div>
 
-                <!-- قائمة المشتركين وإدارة صلاحياتهم -->
                 <h3><i class="fa-solid fa-users"></i> قائمة المشتركين المسجلين وإدارة الصلاحيات</h3>
                 <div class="table-wrap">
                     <table>
@@ -1072,7 +1042,6 @@
 
     </main>
 
-    <!-- AI Assistant Floating Widget -->
     <button class="ai-widget-btn" onclick="toggleAIChat()">
         <i class="fa-solid fa-robot"></i> Ask Electronic AI
     </button>
@@ -1091,7 +1060,6 @@
         </div>
     </div>
 
-    <!-- Modal: Internal Protected PDF/Course Viewer (للقراء فقط مع حماية كاملة من التنزيل وQ&A) -->
     <div class="modal-overlay" id="pdfViewerModal">
         <div class="modal-card" style="max-width: 95%; width: 1150px; height: 92vh; display: flex; flex-direction: column; padding: 20px; position:relative;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">
@@ -1104,7 +1072,6 @@
                 <iframe id="pdfFrame" src="" style="width: 100%; height: 100%; border: none;"></iframe>
             </div>
 
-            <!-- Q&A Section تحت الكتاب/الكورس -->
             <div style="margin-top: 15px; display: flex; flex-direction: column; height: 35%;">
                 <h4 style="font-size: 13px; color: var(--primary-cyan); margin-bottom: 6px;"><i class="fa-solid fa-comments"></i> أسئلة واستفسارات القراء حول هذا المحتوى</h4>
                 <div class="qa-box" id="qaList"></div>
@@ -1116,11 +1083,10 @@
         </div>
     </div>
 
-    <!-- Modal: Auth -->
     <div class="modal-overlay" id="authModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('authModal')">✕</button>
-            <h3 id="modalAuthTitle" style="margin-bottom: 16px; text-align: center; color: #fff;">تسجيل الدخول للقراءة</h3>
+            <h3 id="modalAuthTitle" style="margin-bottom: 16px; text-align: center; color: #fff;">تسجيل الدخول للقراء</h3>
 
             <form onsubmit="handleAuth(event)">
                 <div class="form-group">
@@ -1140,7 +1106,6 @@
         </div>
     </div>
 
-    <!-- Modal: Profile Setup -->
     <div class="modal-overlay" id="profileModal">
         <div class="modal-card">
             <button class="close-modal" onclick="closeModal('profileModal')">✕</button>
@@ -1179,11 +1144,8 @@
     </footer>
 
     <script>
-        // ----------------------------------------------------
-        // 1. Firebase Config & Initial Data
-        // ----------------------------------------------------
         const SUPER_ADMIN_EMAIL = "mohameda2hussiena2@gmail.com";
-        const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 Hour session limit
+        const SESSION_DURATION_MS = 60 * 60 * 1000;
 
         const firebaseConfig = {
             apiKey: "AIzaSyCk1-vMffY8YrFLkgCcISjFkzXjS-N5ikM",
@@ -1215,18 +1177,27 @@
         let sessionTimerRef = null;
         let isFirstLoad = true;
 
+        const GITHUB_BASE_URL = "https://raw.githubusercontent.com/shghl6720-ship-it/MOHAMMED-Electronic-Library/main/";
+
         const initialBooksSeed = [
-            { title: 'الأفومتر الديجيتال Digital Multimeter (DMM)', desc: 'دليل عملي شامل لاستخدام وشرح قياسات الأفومتر الديجيتال وفحص العناصر الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' },
-            { title: 'الدليل الشامل لأهم المستشعرات والوحدات الإلكترونية المستخدمة في مشاريع Arduino', desc: 'مرجع كامل لشرح أشهر مستشعرات الحساسات وتوصيلها مع لوحات أردوينو.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: 'https://drive.google.com/drive/folders/1q1qR7AoowKZE7ezurkHcgdhgsrIJlhbh?usp=sharing' }
+            { title: 'Analog Electronics', desc: 'مرجع شامل في الإلكترونيات التناظرية وتحليل الدوائر.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_Electronics.pdf') },
+            { title: 'Analog Electronics Applications', desc: 'تطبيقات عملية وفحص العناصر في الإلكترونيات التناظرية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_Electronics_Applications.pdf') },
+            { title: 'Analog and VLSI Circuits', desc: 'كتاب دوائر VLSI والإلكترونيات التناظرية الدقيقة.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Analog_and_VLSI_Circuits_www_electronicb.pdf') },
+            { title: 'نظرية وتكنولوجيا الدوائر الكهربائية', desc: 'شرح القوانين والنظريات الأساسية للدوائر الكهربائية.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('نظرية وتكنولوجيا الدوائر الكهربائية.pdf') },
+            { title: 'Electronic Devices and Amplifier Circuit', desc: 'الأجهزة الإلكترونية ودوائر المكبرات (Amplifiers).', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Electronic_Devices_and_Amplifier_Circuit.pdf') },
+            { title: 'دليل مختبر ورشة عمل الإلكترونيات', desc: 'دليل ورش العمل والمختبرات للقياسات والتجارب العملية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل مختبر ورشة عمل الإلكترونيات.pdf') },
+            { title: 'أساسيات الإلكترونيات التناظرية والرقمية', desc: 'مرجع شامل يجمع بين الإلكترونيات التناظرية والرقمية.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('أساسيات الإلكترونيات التناظرية والرقمية.pdf') },
+            { title: 'كتاب أساسيات الإلكترونيات 1', desc: 'الجزء الأول من مبادئ وأساسيات الهندسة الإلكترونية.', cover: 'https://images.unsplash.com/photo-1553406830-ef2513450d76?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('كتاب أساسيات الإلكترونيات 1 (1).pdf') },
+            { title: 'مقدمة في الهندسة الإلكترونية', desc: 'مدخل تعليمي مبسط ومهم لجميع المبتدئين والطلاب.', cover: 'https://images.unsplash.com/photo-1581092335397-9583fe92d232?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('مقدمة في الهندسة الإلكترونية.pdf') },
+            { title: 'Principles of Electric Circuits', desc: 'مبادئ الدوائر الكهربائية والتحليل الكهربائي.', cover: 'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('Principles_of_electric_circuits_Conventi.pdf') },
+            { title: 'تلخيص وإصلاح جميع الأعطال الإلكترونية', desc: 'كتاب عملي وقيّم جداً لصيانة وتتبع الأعطال الإلكترونية.', cover: 'https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('تلخيص وإصلاح جميع الأعطال الإلكترونية (ملف PDF).pdf') },
+            { title: 'دليل الإلكترونيات الشامل', desc: 'دليل مرجعي للمكونات الإلكترونية وطرق قياسها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: GITHUB_BASE_URL + encodeURIComponent('دليل الإلكترونيات.pdf') }
         ];
 
         const initialCoursesSeed = [
             { title: 'كورس الاحتراف في دوائر PLC والأتمتة الصناعية', desc: 'سلسلة شاملة لشرح برمجة المتحكمات المنطقية ولغة Ladder Logic وتطبيقاتها.', cover: 'https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=600&auto=format&fit=crop', url: 'https://www.youtube.com/embed/videoseries?list=PL3a_x_f30' }
         ];
 
-        // ----------------------------------------------------
-        // 2. Notification Helper
-        // ----------------------------------------------------
         function showToast(title, body) {
             const container = document.getElementById('toastContainer');
             const toast = document.createElement('div');
@@ -1244,9 +1215,6 @@
             Notification.requestPermission();
         }
 
-        // ----------------------------------------------------
-        // 3. Realtime Sync & Data Handling
-        // ----------------------------------------------------
         function syncBooksLive() {
             db.collection('books').onSnapshot(async (snapshot) => {
                 if (snapshot.empty) {
@@ -1544,7 +1512,6 @@
             renderBooks(filtered);
         }
 
-        // شروط القراءة الحصرية (للقراء فقط): يتطلب تسجيل دخول وإكمال الملف الشخصي
         function accessBook(url, title = 'عرض الكتاب', itemId = null) {
             if (!currentUser) {
                 alert('عفواً، هذا المحتوى مخصص للقراء فقط! يرجى تسجيل الدخول أو إنشاء حساب جديد.');
@@ -1585,9 +1552,6 @@
             }
         }
 
-        // ----------------------------------------------------
-        // 4. Q&A Comments Logic
-        // ----------------------------------------------------
         function loadQAComments(itemId) {
             const list = document.getElementById('qaList');
             if (!itemId) {
@@ -1635,9 +1599,6 @@
             }
         }
 
-        // ----------------------------------------------------
-        // 5. Calculators Logic
-        // ----------------------------------------------------
         function calcOhm() {
             let v = parseFloat(document.getElementById('ohm-v').value);
             let i = parseFloat(document.getElementById('ohm-i').value);
@@ -1676,9 +1637,6 @@
             document.getElementById('t555-result').innerText = `التردد: ${freq.toFixed(2)} Hz | Duty Cycle: ${duty.toFixed(1)}%`;
         }
 
-        // ----------------------------------------------------
-        // 6. AI Assistant Drawer
-        // ----------------------------------------------------
         function toggleAIChat() {
             const drawer = document.getElementById('ai-chat-drawer');
             drawer.style.display = drawer.style.display === 'flex' ? 'none' : 'flex';
@@ -1705,9 +1663,6 @@
             }, 500);
         }
 
-        // ----------------------------------------------------
-        // 7. Logo Settings & Profile Images
-        // ----------------------------------------------------
         function handleAvatarSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1771,9 +1726,6 @@
             }
         }
 
-        // ----------------------------------------------------
-        // 8. Navigation & Session Timeout Management (1 Hour)
-        // ----------------------------------------------------
         function switchTab(tabId) {
             document.querySelectorAll('.tab-page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
@@ -2029,7 +1981,6 @@
             auth.signOut();
         }
 
-        // حماية لوحة التحكم واختصارات التنزيل/الطباعة للقراء
         document.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 's' || e.key === 'u')) {
                 e.preventDefault();
@@ -2037,7 +1988,6 @@
             }
         });
 
-        // Initialize App
         syncBooksLive();
         syncCoursesLive();
         loadSiteSettings();
